@@ -21,6 +21,10 @@ glm::mat4 Window::V;
 
 OBJObject* Window::obj;
 
+glm::mat4 camRotMat = glm::mat4(1.0f);
+glm::vec3 preVec;
+bool lb_down = false;
+
 void Window::initialize_objects()
 {
 	// cube = new Cube();
@@ -120,6 +124,24 @@ void Window::display_callback(GLFWwindow* window)
 	// cube->draw(shaderProgram);
     obj->draw(shaderProgram);
 
+    if (lb_down){
+        double x,y;
+        glfwGetCursorPos(window, &x, &y);
+        glm::vec3 curr = calTrackBallVec(x, y);
+        if( glm::length(preVec - curr) > 0.0000001f){
+            glm::vec3 rotVec = calRotateVec(preVec, curr);
+            //std::cout << rotVec.x<<'\t' << rotVec.y<<'\t' << rotVec.z << std::endl;
+            float rotAng = glm::length(preVec - curr) * 2.0f;
+            rotVec = rotVec * glm::vec3(1.0f);
+            // magic starts
+            camRotMat = glm::rotate(glm::mat4(1.0f), rotAng, rotVec) * camRotMat;
+            cam_pos = camRotMat * glm::vec4(0.0f, 0.0f,75.0f, 1.0f);
+            glm::vec3 camUp = glm::vec3(0, 1.0f, 0);
+            V = glm::lookAt(cam_pos, glm::vec3(0), camUp);
+        }
+        preVec = curr;
+    }
+        
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -138,4 +160,40 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 	}
+}
+
+void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mods){
+    
+    if(button == GLFW_MOUSE_BUTTON_LEFT){
+        
+        if(actions == GLFW_PRESS){
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            preVec = calTrackBallVec(x, y);
+            lb_down = true;
+        }
+        
+        else if (actions == GLFW_RELEASE){
+            lb_down = false;
+            
+        }
+    }
+}
+
+
+glm::vec3 Window::calTrackBallVec(double x, double y){
+    glm::vec3 v;    // Vector v is the synthesized 3D position of the mouse location on the trackball
+    float d;     // this is the depth of the mouse location: the delta between the plane through the center of the trackball and the z position of the mouse
+    v.x = (4.0 * x - width) / width;   // this calculates the mouse X position in trackball coordinates, which range from -1 to +1
+    v.y = (height - 4.0 * y) / height;   // this does the equivalent to the above for the mouse Y position
+    v.z = 0.0;   // initially the mouse z position is set to zero, but this will change below
+    d = glm::length(v);    // this is the distance from the trackball's origin to the mouse location, without considering depth (=in the plane of the trackball's origin)
+    d = (d < 1.0f) ? d : 1.0;   // this limits d to values of 1.0 or less to avoid square roots of negative values in the following line
+    v.z = sqrtf(1.001f - d * d);  // this calculates the Z coordinate of the mouse position on the trackball, based on Pythagoras: v.z*v.z + d*d = 1*1
+    v = glm::normalize(v); // Still need to normalize, since we only capped d, not v.
+    return v;  // return the mouse location on the surface of the trackball
+}
+
+glm::vec3 Window::calRotateVec(glm::vec3 prev, glm::vec3 curr){
+    return glm::normalize(glm::cross(prev, curr));
 }

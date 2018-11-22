@@ -238,7 +238,7 @@ void OBJObject::centerObject() {
     maxZ -= centerZ;
     
     float scale = 0;
-    float expectedSize = 20;
+    float expectedSize = 50;
     if ((maxY - minY) >= (maxX - minX) && (maxY - minY) >= (maxZ - minZ)) {
         scale = expectedSize / (maxY - minY);
     } else if ((maxZ - minZ) >= (maxX - minX)) {
