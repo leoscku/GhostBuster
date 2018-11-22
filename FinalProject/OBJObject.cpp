@@ -75,7 +75,7 @@ void OBJObject::parse(const char *filepath)
     float r, g, b;
     int c1, c2;
     float tx, ty;
-    int f_v1, f_t1, f_n1, f_v2, f_t2, f_n2, f_v3, f_t3, f_n3;
+    int f_v1, f_t1, f_n1, f_v2, f_t2, f_n2, f_v3, f_t3, f_n3, f_v4, f_t4, f_n4;
     
     fp = fopen(filepath, "rb");
     if (fp==NULL) {std::cerr << "Error loading file" << std::endl; exit(-1); }
@@ -105,11 +105,14 @@ void OBJObject::parse(const char *filepath)
                 this->texiles.push_back(glm::vec2(tx, ty));
             }
         } else if (c1 == 'f' && c2 == ' ') {
-            error = fscanf(fp, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &f_v1, &f_t1, &f_n1, &f_v2, &f_t2, &f_n2, &f_v3, &f_t3, &f_n3);
+            error = fscanf(fp, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n", &f_v1, &f_t1, &f_n1, &f_v2, &f_t2, &f_n2, &f_v3, &f_t3, &f_n3, &f_v4, &f_t4, &f_n4);
             if (error != EOF) {
                 this->indices.push_back(glm::vec3(f_v1, f_t1, f_n1));
                 this->indices.push_back(glm::vec3(f_v2, f_t2, f_n2));
                 this->indices.push_back(glm::vec3(f_v3, f_t3, f_n3));
+                this->indices.push_back(glm::vec3(f_v1, f_t1, f_n1));
+                this->indices.push_back(glm::vec3(f_v3, f_t3, f_n3));
+                this->indices.push_back(glm::vec3(f_v4, f_t4, f_n4));
             }
         }
         if (feof(fp)) break;

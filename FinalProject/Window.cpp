@@ -9,7 +9,7 @@ GLint shaderProgram;
 #define FRAGMENT_SHADER_PATH "./shader.frag"
 
 // Default camera parameters
-glm::vec3 cam_pos(0.0f, 0.0f, 20.0f);		// e  | Position of camera
+glm::vec3 cam_pos(0.0f, 0.0f, 75.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
@@ -130,10 +130,8 @@ void Window::display_callback(GLFWwindow* window)
         glm::vec3 curr = calTrackBallVec(x, y);
         if( glm::length(preVec - curr) > 0.0000001f){
             glm::vec3 rotVec = calRotateVec(preVec, curr);
-            //std::cout << rotVec.x<<'\t' << rotVec.y<<'\t' << rotVec.z << std::endl;
             float rotAng = glm::length(preVec - curr) * 2.0f;
             rotVec = rotVec * glm::vec3(1.0f);
-            // magic starts
             camRotMat = glm::rotate(glm::mat4(1.0f), rotAng, rotVec) * camRotMat;
             cam_pos = camRotMat * glm::vec4(0.0f, 0.0f,75.0f, 1.0f);
             glm::vec3 camUp = glm::vec3(0, 1.0f, 0);
