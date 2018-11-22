@@ -1,7 +1,7 @@
 #include "Window.h"
 
 const char* window_title = "GLFW Starter Project";
-Cube * cube;
+// Cube * cube;
 GLint shaderProgram;
 
 // On some systems you need to change this to the absolute path
@@ -19,9 +19,12 @@ int Window::height;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
+OBJObject* Window::obj;
+
 void Window::initialize_objects()
 {
-	cube = new Cube();
+	// cube = new Cube();
+    obj = new OBJObject("M4A1.obj", "web.PPM");
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -30,7 +33,7 @@ void Window::initialize_objects()
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
-	delete(cube);
+	// delete(cube);
 	glDeleteProgram(shaderProgram);
 }
 
@@ -101,7 +104,8 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 void Window::idle_callback()
 {
 	// Call the update function the cube
-	cube->update();
+	// cube->update();
+    obj->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -113,7 +117,8 @@ void Window::display_callback(GLFWwindow* window)
 	glUseProgram(shaderProgram);
 	
 	// Render the cube
-	cube->draw(shaderProgram);
+	// cube->draw(shaderProgram);
+    obj->draw(shaderProgram);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();

@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include "Cube.h"
 #include "shader.h"
+#include "OBJObject.h"
 
 class Window
 {
@@ -27,6 +28,8 @@ public:
 	static void idle_callback();
 	static void display_callback(GLFWwindow*);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    
+    static OBJObject* obj; 
 };
 
 #endif
