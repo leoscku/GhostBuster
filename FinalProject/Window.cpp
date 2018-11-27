@@ -21,9 +21,16 @@ glm::mat4 Window::V;
 
 OBJObject* Window::obj;
 
+
 glm::mat4 camRotMat = glm::mat4(1.0f);
 glm::vec3 preVec;
 bool lb_down = false;
+
+// Use FMOD to create background music
+FMOD_RESULT result;
+FMOD::System *m_pSystem;
+FMOD::Sound* Sound;
+FMOD::Sound* gunSound;
 
 void Window::initialize_objects()
 {
@@ -32,6 +39,30 @@ void Window::initialize_objects()
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    
+    
+    if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
+    {
+        // Report Error
+        return;
+    }
+    
+    int driverCount = 0;
+    m_pSystem->getNumDrivers(&driverCount);
+    
+    if (driverCount == 0)
+    {
+        // Report Error
+        return;
+    }
+    
+    // Initialize our Instance with 36 Channels
+    m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
+    
+    m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
+    m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
+
+    m_pSystem->playSound( Sound,NULL, false, 0);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -107,6 +138,8 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
+    m_pSystem->playSound( gunSound,NULL, false, 0);
+
 	// Call the update function the cube
 	// cube->update();
     obj->update();
@@ -163,8 +196,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mods){
     
     if(button == GLFW_MOUSE_BUTTON_LEFT){
-        
+
         if(actions == GLFW_PRESS){
+
             double x, y;
             glfwGetCursorPos(window, &x, &y);
             preVec = calTrackBallVec(x, y);

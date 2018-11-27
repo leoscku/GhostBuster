@@ -1,6 +1,7 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
+
 #include <iostream>
 
 #define GLFW_INCLUDE_GLEXT
@@ -13,6 +14,8 @@
 #include "Cube.h"
 #include "shader.h"
 #include "OBJObject.h"
+#include "fmod.hpp"
+#include "fmod.h"
 
 class Window
 {
