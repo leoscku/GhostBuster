@@ -3,6 +3,7 @@
 const char* window_title = "GLFW Starter Project";
 // Cube * cube;
 GLint shaderProgram;
+GLint terrainShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
@@ -32,14 +33,17 @@ FMOD::System *m_pSystem;
 FMOD::Sound* Sound;
 FMOD::Sound* gunSound;
 
+Island* island;
+
 void Window::initialize_objects()
 {
+    
 	// cube = new Cube();
     obj = new OBJObject("M4A1.obj", "web.PPM");
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-    
+    terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
     
     if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
     {
@@ -63,6 +67,8 @@ void Window::initialize_objects()
     m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
+    
+    island = new Island();
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -138,8 +144,6 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-    m_pSystem->playSound( gunSound,NULL, false, 0);
-
 	// Call the update function the cube
 	// cube->update();
     obj->update();
@@ -155,8 +159,8 @@ void Window::display_callback(GLFWwindow* window)
 	
 	// Render the cube
 	// cube->draw(shaderProgram);
-    obj->draw(shaderProgram);
-
+    //obj->draw(shaderProgram);
+    island->draw(terrainShaderProgram);
     if (lb_down){
         double x,y;
         glfwGetCursorPos(window, &x, &y);
