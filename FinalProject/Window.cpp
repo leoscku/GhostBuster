@@ -64,7 +64,7 @@ void Window::initialize_objects()
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
     
     m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
-    m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
+    //m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
     
@@ -194,6 +194,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
+        
+        if (key == GLFW_KEY_9){
+            island->reGenerateData();
+        }
 	}
 }
 

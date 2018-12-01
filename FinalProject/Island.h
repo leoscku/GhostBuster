@@ -37,9 +37,9 @@ class Island
     
     glm::mat4 toWorld;
     
-    int mapSize = 129;
+    int mapSize = 513;
     
-    float mapArray[129][129];
+    float mapArray[513][513];
     
     void generateRandomMap(glm::vec2 startPos );
     void mapSquare(int);
@@ -54,6 +54,8 @@ class Island
     void draw(GLuint shaderProgram);
 
     float random(int length);
+    
+    void reGenerateData();
     
     // These variables are needed for the shader program
     GLuint VBO, VAO, EBO;

@@ -106,11 +106,10 @@ void Island::squareStep(int x, int z, int length){
     
     sum /= pointNum;
     
-    float delta = ((float)rand()/(float)(RAND_MAX)) * size - 0.5f * size;
+    float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
     
-    sum += delta;
-    std::cout << delta << std::endl;
-    
+    sum += delta / 8 ;
+
     mapArray[x][z] = sum;
 }
 
@@ -142,9 +141,9 @@ void Island::diamondStep(int x, int z, int length){
     
     sum /= pointNum;
     
-    float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) * 0.5f - 0.5f * float(size) * 0.5f;
+    float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
 
-    sum += delta;
+    sum += delta / 8 ;
     
     mapArray[x][z] = sum;
 }
@@ -153,12 +152,12 @@ void Island::bufferData(){
     int c = 0;
     for (int x = 0; x < mapSize - 1; x++){
         for (int z = 0;z < mapSize - 1; z++){
-            coordData.push_back(glm::vec3(x * 1.1 - 20, mapArray[x][z], z * 1.1 - 20));
-            coordData.push_back(glm::vec3((x + 1) * 1.1 - 20, mapArray[(x + 1)][z], z * 1.1 - 20));
-            coordData.push_back(glm::vec3((x + 1) * 1.1 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 1.1 - 20));
-            coordData.push_back(glm::vec3(x * 1.1 - 20, mapArray[x][z], z * 1.1 - 20));
-            coordData.push_back(glm::vec3((x + 1) * 1.1 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 1.1 - 20));
-            coordData.push_back(glm::vec3(x * 1.1 - 20, mapArray[x][(z + 1)], (z + 1) * 1.1 - 20));
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 0.25 - 20));
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 0.25 - 20));
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][(z + 1)], (z + 1) * 0.25 - 20));
             
             indices.push_back(c);
             c++;
@@ -229,7 +228,31 @@ void Island::draw(GLuint shaderProgram)
     
     // Now draw the object. We simply need to bind the VAO associated with it.
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, 0);
     // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+    glBindVertexArray(0);
+}
+
+void Island::reGenerateData(){
+    srand(time(NULL));
+    mapSquare(mapSize);
+    
+    coordData.clear();
+    for (int x = 0; x < mapSize - 1; x++){
+        for (int z = 0;z < mapSize - 1; z++){
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 0.25 - 20));
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][z], z * 0.25 - 20));
+            coordData.push_back(glm::vec3((x + 1) * 0.25 - 20, mapArray[(x + 1)][(z + 1)], (z + 1) * 0.25 - 20));
+            coordData.push_back(glm::vec3(x * 0.25 - 20, mapArray[x][(z + 1)], (z + 1) * 0.25 - 20));
+        }
+    }
+    
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, coordData.size() * sizeof(GLfloat) * 3, &coordData[0]);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
