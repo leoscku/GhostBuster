@@ -158,7 +158,7 @@ void Island::bufferData(){
     
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
-            coordData.push_back(glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20));
+            coordData.push_back(glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2));
             texture.push_back(glm::vec2(float(x) / (mapSize - 1), float(z) / (mapSize - 1)));
             normals[x][z] = glm::vec3(0);
         }
@@ -172,9 +172,9 @@ void Island::bufferData(){
             indices.push_back((x + 1) * mapSize + z );
             indices.push_back((x + 1) * mapSize + z + 1);
             
-            glm::vec3 first = glm::vec3(x * 1.2 - 20, mapArray[x][z + 1], (z + 1) * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
+            glm::vec3 first = glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z + 1], (z + 1) * 1.2 - mapSize / 2 * 1.2) - glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2);
             
-            glm::vec3 second = glm::vec3((x + 1) * 1.2 - 20, mapArray[x + 1][z], z * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
+            glm::vec3 second = glm::vec3((x + 1) * 1.2 - mapSize / 2 * 1.2, mapArray[x + 1][z], z * 1.2 - mapSize / 2 * 1.2) - glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2);
             
             glm::vec3 res = glm::normalize(glm::cross(first, second));
             
@@ -289,7 +289,7 @@ void Island::reGenerateData(){
     coordData.clear();
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
-            coordData.push_back(glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20));
+            coordData.push_back(glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2));
         }
     }
     
@@ -306,9 +306,9 @@ void Island::reGenerateData(){
     
     for (int x = 0; x < mapSize - 1; x++){
         for (int z = 0;z < mapSize - 1; z++){
-            glm::vec3 first = glm::vec3(x * 1.2 - 20, mapArray[x][z + 1], (z + 1) * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
+            glm::vec3 first = glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z + 1], (z + 1) * 1.2 - mapSize / 2 * 1.2) - glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2);
             
-            glm::vec3 second = glm::vec3((x + 1) * 1.2 - 20, mapArray[x + 1][z], z * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
+            glm::vec3 second = glm::vec3((x + 1) * 1.2 - mapSize / 2 * 1.2, mapArray[x + 1][z], z * 1.2 - mapSize / 2 * 1.2) - glm::vec3(x * 1.2 - mapSize / 2 * 1.2, mapArray[x][z], z * 1.2 - mapSize / 2 * 1.2);
             
             normals[x][z] += glm::normalize(glm::cross(first, second));
             normals[x + 1][z] += glm::normalize(glm::cross(first, second));
@@ -359,4 +359,23 @@ int Island::loadTexture(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
     return textureID;
+}
+
+float Island::getY(glm::vec2 coord){
+    // using x, z since y is "up"
+    float x = coord.x;
+    float z = coord.y;
+    
+    // perform linear interpolation
+    int xPos = int((x + mapSize / 2 * 1.2) / 1.2);
+    int zPos = int((z + mapSize / 2 * 1.2) / 1.2);
+
+    int xCoef = fmod(x + mapSize / 2 * 1.2, 1.2);
+    int zCoef = fmod(z + mapSize / 2 * 1.2, 1.2);
+
+    glm::vec3 fp = (coordData[(xPos + 1) * mapSize + zPos] - coordData[x * mapSize + z]) * glm::vec3(xCoef) +  coordData[x * mapSize + z];
+    glm::vec3 sp = (coordData[(xPos + 1) * mapSize + zPos + 1] - coordData[xPos * mapSize + z + 1]) * glm::vec3(xCoef) +  coordData[xPos * mapSize + z + 1];
+
+    glm::vec3 res = glm::vec3(zCoef) * (sp - fp) + fp;
+    return res.y;
 }

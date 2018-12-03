@@ -54,6 +54,7 @@ class Island
     void bufferData();
     
     void draw(GLuint shaderProgram, glm::mat4 view);
+    float getY(glm::vec2 coord);
 
     float random(int length);
     
