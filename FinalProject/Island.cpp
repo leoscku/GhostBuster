@@ -113,8 +113,7 @@ void Island::squareStep(int x, int z, int length){
     sum /= pointNum;
     
     float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
-    
-    sum += delta / 16 ;
+    sum += delta / 2 ;
 
     mapArray[x][z] = sum;
 }
@@ -149,7 +148,7 @@ void Island::diamondStep(int x, int z, int length){
     
     float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
 
-    sum += delta / 16 ;
+    sum += delta / 2 ;
     
     mapArray[x][z] = sum;
 }
@@ -159,7 +158,7 @@ void Island::bufferData(){
     
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
-            coordData.push_back(glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20));
+            coordData.push_back(glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20));
             texture.push_back(glm::vec2(float(x) / (mapSize - 1), float(z) / (mapSize - 1)));
             normals[x][z] = glm::vec3(0);
         }
@@ -173,9 +172,9 @@ void Island::bufferData(){
             indices.push_back((x + 1) * mapSize + z );
             indices.push_back((x + 1) * mapSize + z + 1);
             
-            glm::vec3 first = glm::vec3(x * 0.125 - 20, mapArray[x][z + 1], (z + 1) * 0.125 - 20) - glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20);
+            glm::vec3 first = glm::vec3(x * 1.2 - 20, mapArray[x][z + 1], (z + 1) * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
             
-            glm::vec3 second = glm::vec3((x + 1) * 0.125 - 20, mapArray[x + 1][z], z * 0.125 - 20) - glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20);
+            glm::vec3 second = glm::vec3((x + 1) * 1.2 - 20, mapArray[x + 1][z], z * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
             
             glm::vec3 res = glm::normalize(glm::cross(first, second));
             
@@ -254,12 +253,12 @@ void Island::bufferData(){
     
 }
 
-void Island::draw(GLuint shaderProgram)
+void Island::draw(GLuint shaderProgram, glm::mat4 view)
 {
     glUseProgram(shaderProgram);
 
     // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = Window::V;
+    glm::mat4 modelview = view;
     // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
     // Consequently, we need to forward the projection, view, and model matrices to the shader programs
     // Get the location of the uniform variables "projection" and "modelview"
@@ -290,7 +289,7 @@ void Island::reGenerateData(){
     coordData.clear();
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
-            coordData.push_back(glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20));
+            coordData.push_back(glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20));
         }
     }
     
@@ -307,9 +306,9 @@ void Island::reGenerateData(){
     
     for (int x = 0; x < mapSize - 1; x++){
         for (int z = 0;z < mapSize - 1; z++){
-            glm::vec3 first = glm::vec3(x * 0.125 - 20, mapArray[x][z + 1], (z + 1) * 0.125 - 20) - glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20);
+            glm::vec3 first = glm::vec3(x * 1.2 - 20, mapArray[x][z + 1], (z + 1) * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
             
-            glm::vec3 second = glm::vec3((x + 1) * 0.125 - 20, mapArray[x + 1][z], z * 0.125 - 20) - glm::vec3(x * 0.125 - 20, mapArray[x][z], z * 0.125 - 20);
+            glm::vec3 second = glm::vec3((x + 1) * 1.2 - 20, mapArray[x + 1][z], z * 1.2 - 20) - glm::vec3(x * 1.2 - 20, mapArray[x][z], z * 1.2 - 20);
             
             normals[x][z] += glm::normalize(glm::cross(first, second));
             normals[x + 1][z] += glm::normalize(glm::cross(first, second));

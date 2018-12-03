@@ -18,6 +18,8 @@
 #include "fmod.h"
 
 #include "Island.h"
+#include "Player.h"
+
 class Window
 {
 public:
@@ -32,12 +34,14 @@ public:
 	static void idle_callback();
 	static void display_callback(GLFWwindow*);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void mouse_callback(GLFWwindow* window, int button, int actions, int mods);
-    
-    static OBJObject* obj;
-    
-    static glm::vec3 calTrackBallVec(double x, double y);
-    static glm::vec3 calRotateVec(glm::vec3 prev, glm::vec3 curr);
+  static void mouse_callback(GLFWwindow* window, int button, int actions, int mods);
+  static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+  
+  static OBJObject* obj;
+  
+  static glm::vec3 calTrackBallVec(double x, double y);
+  static glm::vec3 calRotateVec(glm::vec3 prev, glm::vec3 curr);
+  static void processInput(GLFWwindow *window);
 };
 
 #endif

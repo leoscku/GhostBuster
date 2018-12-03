@@ -20,8 +20,15 @@ int Window::height;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
-OBJObject* Window::obj;
+//Player
+Player* player;
+float lastX;
+float lastY;
+bool firstMouse = true;
 
+// timing
+float deltaTime = 0.0f;  // time between current frame and last frame
+float lastFrame = 0.0f;
 
 glm::mat4 camRotMat = glm::mat4(1.0f);
 glm::vec3 preVec;
@@ -37,9 +44,7 @@ Island* island;
 
 void Window::initialize_objects()
 {
-    
-	// cube = new Cube();
-    obj = new OBJObject("M4A1.obj", "web.PPM");
+  player = new Player(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -86,6 +91,9 @@ GLFWwindow* Window::create_window(int width, int height)
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		return NULL;
 	}
+  
+  lastX = width / 2.0f;
+  lastY = height / 2.0f;
 
 	// 4x antialiasing
 	glfwWindowHint(GLFW_SAMPLES, 4);
@@ -146,41 +154,50 @@ void Window::idle_callback()
 {
 	// Call the update function the cube
 	// cube->update();
-    obj->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
 {
+  float currentFrame = glfwGetTime();
+  deltaTime = currentFrame - lastFrame;
+  lastFrame = currentFrame;
+  
+  processInput(window);
+  
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
-	
-	// Render the cube
-	// cube->draw(shaderProgram);
-    //obj->draw(shaderProgram);
-    island->draw(terrainShaderProgram);
-    if (lb_down){
-        double x,y;
-        glfwGetCursorPos(window, &x, &y);
-        glm::vec3 curr = calTrackBallVec(x, y);
-        if( glm::length(preVec - curr) > 0.0000001f){
-            glm::vec3 rotVec = calRotateVec(preVec, curr);
-            float rotAng = glm::length(preVec - curr) * 2.0f;
-            rotVec = rotVec * glm::vec3(1.0f);
-            camRotMat = glm::rotate(glm::mat4(1.0f), rotAng, rotVec) * camRotMat;
-            cam_pos = camRotMat * glm::vec4(0.0f, 0.0f,75.0f, 1.0f);
-            glm::vec3 camUp = glm::vec3(0, 1.0f, 0);
-            V = glm::lookAt(cam_pos, glm::vec3(0), camUp);
-        }
-        preVec = curr;
-    }
+  player -> draw(shaderProgram);
+
+  glUseProgram(terrainShaderProgram);
+  island->draw(terrainShaderProgram, player -> getViewMatrix());
+  
         
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
 	glfwSwapBuffers(window);
+}
+
+void Window::processInput(GLFWwindow *window) {
+  
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+    player -> processKeyboard(FORWARD, deltaTime);
+  }
+  
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+    player -> processKeyboard(BACKWARD, deltaTime);
+  }
+  
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+    player -> processKeyboard(LEFT, deltaTime);
+  }
+  
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+    player -> processKeyboard(RIGHT, deltaTime);
+  }
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -201,8 +218,24 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 	}
 }
 
+void Window::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
+  if (firstMouse)
+  {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+  
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+  
+  lastX = xpos;
+  lastY = ypos;
+  
+  player -> processMouseMovement(xoffset, yoffset);
+}
+
 void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mods){
-    
     if(button == GLFW_MOUSE_BUTTON_LEFT){
 
         if(actions == GLFW_PRESS){
@@ -212,10 +245,9 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
             preVec = calTrackBallVec(x, y);
             lb_down = true;
         }
-        
         else if (actions == GLFW_RELEASE){
             lb_down = false;
-            
+
         }
     }
 }
