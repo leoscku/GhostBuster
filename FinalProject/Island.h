@@ -34,12 +34,14 @@ class Island
     
     std::vector<glm::vec3> coordData;
     std::vector<int> indices;
-    
+    glm::vec3 normals[1025][1025];
+    std::vector<glm::vec2> texture;
+
     glm::mat4 toWorld;
     
-    int mapSize = 513;
+    int mapSize = 1025;
     
-    float mapArray[513][513];
+    float mapArray[1025][1025];
     
     void generateRandomMap(glm::vec2 startPos );
     void mapSquare(int);
@@ -57,8 +59,12 @@ class Island
     
     void reGenerateData();
     
+    int loadTexture();
+    
+    int texID;
+    
     // These variables are needed for the shader program
-    GLuint VBO, VAO, EBO;
+    GLuint VBO, VAO, EBO, CBO, VBO2;
     GLuint uProjection, uModelview;
 };
 
