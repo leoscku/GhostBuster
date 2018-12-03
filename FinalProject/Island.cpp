@@ -109,7 +109,7 @@ void Island::squareStep(int x, int z, int length){
     float delta = ((float)rand()/(float)(RAND_MAX)) * size - 0.5f * size;
     
     sum += delta;
-    std::cout << delta << std::endl;
+    //std::cout << delta << std::endl;
     
     mapArray[x][z] = sum;
 }
@@ -210,12 +210,12 @@ void Island::bufferData(){
     
 }
 
-void Island::draw(GLuint shaderProgram)
+void Island::draw(GLuint shaderProgram, glm::mat4 view)
 {
     glUseProgram(shaderProgram);
 
     // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = Window::V;
+    glm::mat4 modelview = view;
     // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
     // Consequently, we need to forward the projection, view, and model matrices to the shader programs
     // Get the location of the uniform variables "projection" and "modelview"

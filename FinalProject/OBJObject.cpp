@@ -5,57 +5,59 @@
 OBJObject::OBJObject(const char* OBJfilepath, const char* TEXfilepath)
 {
 	toWorld = glm::mat4(1.0f);
+  this -> position = glm::vec3(0.0f, 0.0f, 0.0f);
 	parse(OBJfilepath);
-    centerObject();
-    loadTexture(TEXfilepath); 
-    reorderData();
-    
-    // Create array object and buffers. Remember to delete your buffers when the object is destroyed!
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &VBO2);
-    glGenBuffers(1, &VBO3);
-    glGenBuffers(1, &EBO);
-    
-    // Bind the Vertex Array Object (VAO) first, then bind the associated buffers to it.
-    // Consider the VAO as a container for all your buffers.
-    glBindVertexArray(VAO);
-    
-    // Now bind a VBO to it as a GL_ARRAY_BUFFER. The GL_ARRAY_BUFFER is an array containing relevant data to what
-    // you want to draw, such as vertices, normals, colors, etc.
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData populates the most recently bound buffer with data starting at the 3rd argument and ending after
-    // the 2nd argument number of indices. How does OpenGL know how long an index spans? Go to glVertexAttribPointer.
-    glBufferData(GL_ARRAY_BUFFER, outVertices.size() * sizeof(GLfloat) * 3, &outVertices[0], GL_STATIC_DRAW);
-    // Enable the usage of layout location 0 (check the vertex shader to see what this is)
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
-                          3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
-                          GL_FLOAT, // What type these components are
-                          GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
-                          3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
-                          (GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
-    
-    // We've sent the vertex data over to OpenGL, but there's still something missing.
-    // In what order should it draw those vertices? That's why we'll need a GL_ELEMENT_ARRAY_BUFFER for this.
-    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-    glBufferData(GL_ARRAY_BUFFER, outTexiles.size() * sizeof(GLfloat) * 2, &outTexiles[0], GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, VBO3);
-    glBufferData(GL_ARRAY_BUFFER, outNormals.size() * sizeof(GLfloat) * 3, &outNormals[0], GL_STATIC_DRAW);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+  centerObject();
+  loadTexture(TEXfilepath);
+  reorderData();
+  toWorld = glm::translate(toWorld, this -> position);
+  
+  // Create array object and buffers. Remember to delete your buffers when the object is destroyed!
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &VBO2);
+  glGenBuffers(1, &VBO3);
+  glGenBuffers(1, &EBO);
+  
+  // Bind the Vertex Array Object (VAO) first, then bind the associated buffers to it.
+  // Consider the VAO as a container for all your buffers.
+  glBindVertexArray(VAO);
+  
+  // Now bind a VBO to it as a GL_ARRAY_BUFFER. The GL_ARRAY_BUFFER is an array containing relevant data to what
+  // you want to draw, such as vertices, normals, colors, etc.
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  // glBufferData populates the most recently bound buffer with data starting at the 3rd argument and ending after
+  // the 2nd argument number of indices. How does OpenGL know how long an index spans? Go to glVertexAttribPointer.
+  glBufferData(GL_ARRAY_BUFFER, outVertices.size() * sizeof(GLfloat) * 3, &outVertices[0], GL_STATIC_DRAW);
+  // Enable the usage of layout location 0 (check the vertex shader to see what this is)
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
+                        3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
+                        GL_FLOAT, // What type these components are
+                        GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
+                        3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
+                        (GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
+  
+  // We've sent the vertex data over to OpenGL, but there's still something missing.
+  // In what order should it draw those vertices? That's why we'll need a GL_ELEMENT_ARRAY_BUFFER for this.
+  glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+  glBufferData(GL_ARRAY_BUFFER, outTexiles.size() * sizeof(GLfloat) * 2, &outTexiles[0], GL_STATIC_DRAW);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+  glBufferData(GL_ARRAY_BUFFER, outNormals.size() * sizeof(GLfloat) * 3, &outNormals[0], GL_STATIC_DRAW);
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, outIndices.size() * sizeof(GLuint), &outIndices[0], GL_STATIC_DRAW);
-    
-    // Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // Unbind the VAO now so we don't accidentally tamper with it.
-    // NOTE: You must NEVER unbind the element array buffer associated with a VAO!
-    glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, outIndices.size() * sizeof(GLuint), &outIndices[0], GL_STATIC_DRAW);
+  
+  // Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  // Unbind the VAO now so we don't accidentally tamper with it.
+  // NOTE: You must NEVER unbind the element array buffer associated with a VAO!
+  glBindVertexArray(0);
 }
 
 OBJObject::~OBJObject() {
@@ -142,10 +144,10 @@ void OBJObject::reorderData() {
     }
 }
 
-void OBJObject::draw(GLuint shaderProgram)
+void OBJObject::draw(GLuint shaderProgram, glm::mat4 view)
 {
     // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = Window::V * toWorld;
+    glm::mat4 modelview = view * toWorld;
     // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
     // Consequently, we need to forward the projection, view, and model matrices to the shader programs
     // Get the location of the uniform variables "projection" and "modelview"
@@ -164,34 +166,7 @@ void OBJObject::draw(GLuint shaderProgram)
     // Now draw the object. We simply need to bind the VAO associated with it.
     glBindVertexArray(VAO);
     // Tell OpenGL to draw with triangles, using all indices, the type of the indices, and the offset to start from
-    glDrawElements(GL_TRIANGLES, outIndices.size(), GL_UNSIGNED_INT, 0);
-    // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
-    glBindVertexArray(0);
-}
-
-void OBJObject::draw(GLuint shaderProgram, glm::mat4 toWorld)
-{
-    // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = Window::V * toWorld;
-    // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-    // Consequently, we need to forward the projection, view, and model matrices to the shader programs
-    // Get the location of the uniform variables "projection" and "modelview"
-    uProjection = glGetUniformLocation(shaderProgram, "projection");
-    uModelview = glGetUniformLocation(shaderProgram, "modelview");
-    uTex = glGetUniformLocation(shaderProgram, "tex");
-    
-    // Now send these values to the shader program
-    glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-    glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-    
-    // glUniform1i(uTex, textureID);
-    glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    
-    // Now draw the object. We simply need to bind the VAO associated with it.
-    glBindVertexArray(VAO);
-    // Tell OpenGL to draw with triangles, using all indices, the type of the indices, and the offset to start from
-    glDrawElements(GL_TRIANGLES, outIndices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (int)outIndices.size(), GL_UNSIGNED_INT, 0);
     // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
     glBindVertexArray(0);
 }
@@ -241,7 +216,7 @@ void OBJObject::centerObject() {
     maxZ -= centerZ;
     
     float scale = 0;
-    float expectedSize = 50;
+    float expectedSize = 100;
     if ((maxY - minY) >= (maxX - minX) && (maxY - minY) >= (maxZ - minZ)) {
         scale = expectedSize / (maxY - minY);
     } else if ((maxZ - minZ) >= (maxX - minX)) {
@@ -256,11 +231,20 @@ void OBJObject::centerObject() {
 }
 
 void OBJObject::scale(float coefficient) {
-    toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(coefficient)) * toWorld;
+  toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(coefficient)) * toWorld;
 }
 
 void OBJObject::setPosition(glm::vec3 pos) {
-    toWorld = glm::translate(toWorld, glm::vec3(pos));
+  std::cout << "x: " << pos.x << "y: " << pos.y << "z: " << pos.z << std::endl;
+  position += pos;
+  toWorld = glm::translate(glm::mat4(1.0f), position);
+}
+
+void OBJObject::rotate(glm::vec3 rotAxis, float rotAngle) {
+  
+  //std::cout << rotAngle << std::endl;
+  toWorld = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * toWorld;
+  position = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * glm::vec4(position, 1.0f);
 }
 
 /** Load a ppm file from disk.
