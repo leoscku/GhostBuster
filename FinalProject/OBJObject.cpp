@@ -235,16 +235,30 @@ void OBJObject::scale(float coefficient) {
 }
 
 void OBJObject::setPosition(glm::vec3 pos) {
-  std::cout << "x: " << pos.x << "y: " << pos.y << "z: " << pos.z << std::endl;
+  //std::cout << "x: " << pos.x << "y: " << pos.y << "z: " << pos.z << std::endl;
   position += pos;
-  toWorld = glm::translate(glm::mat4(1.0f), position);
+  toWorld = glm::translate(glm::mat4(1.0f), pos) * toWorld;
 }
 
 void OBJObject::rotate(glm::vec3 rotAxis, float rotAngle) {
   
-  //std::cout << rotAngle << std::endl;
+  std::cout << rotAngle << std::endl;
   toWorld = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * toWorld;
   position = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * glm::vec4(position, 1.0f);
+}
+
+void OBJObject::setFront(glm::vec3 front, glm::vec3 up){
+  this -> front = front;
+  this -> up = up;
+}
+
+void OBJObject::lookAt(glm::vec3 front, glm::vec3 up) {
+  toWorld = glm::inverse(glm::lookAt(position, position + front, up)) * toWorld;
+  //toWorld = glm::translate(toWorld, position);
+}
+
+void OBJObject::rotateEuler(float yaw, float pitch) {
+  toWorld = glm::eulerAngleYXZ(yaw, pitch, 0.0f) * toWorld;
 }
 
 /** Load a ppm file from disk.

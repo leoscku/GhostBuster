@@ -17,6 +17,8 @@
 
 #include <random>
 
+
+
 class OBJObject
 {
 private:
@@ -47,6 +49,8 @@ public:
   
   glm::mat4 toWorld;
   glm::vec3 position;
+  glm::vec3 front;
+  glm::vec3 up;
 
   float angle;
 
@@ -61,6 +65,12 @@ public:
   void setPosition(glm::vec3 pos);
 
   void rotate(glm::vec3 rotAxis, float rotAngle);
+  
+  void setFront(glm::vec3 front, glm::vec3 up);
+  
+  void lookAt(glm::vec3 front, glm::vec3 up);
+  
+  void rotateEuler(float yaw, float pitch);
 
   void loadTexture(const char* filepath);
     

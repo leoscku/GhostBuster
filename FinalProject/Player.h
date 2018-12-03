@@ -23,6 +23,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/euler_angles.hpp>
+
 #include <stdio.h>
 #include "OBJObject.h"
 
@@ -57,6 +60,9 @@ public:
   float movementSpeed;
   float mouseSensitivity;
   float zoom;
+  // Player movement vector
+  glm::vec3 forwardDir;
+  glm::vec3 rightDir;
   
   //Player Gun
   OBJObject* gun;
