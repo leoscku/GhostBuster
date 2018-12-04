@@ -8,17 +8,18 @@
 
 #include "Player.h"
 
-Player::Player(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), forwardDir(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
+Player::Player(glm::vec3 position, Island* island, glm::vec3 up, float yaw, float pitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), forwardDir(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
   
   gun = new OBJObject("M4A1.obj", "web.PPM");
   
-  //gun -> scale(0.01f);
-  //gun -> setPosition(glm::vec3(11.0f, -17.0f, -38.0f));
-  //gun -> rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(5.0f));
   gun -> initializeVector(front, right, up);
+  this -> island = island;
   
+  float yValue = island -> getY(glm::vec2(position.x, position.z));
   
-  this -> position = position;
+  std::cout << yValue << std::endl;
+  
+  this -> position = glm::vec3(position.x, yValue, position.z);
   this -> worldUp = up;
   this -> yaw = yaw;
   this -> pitch = pitch;
@@ -54,6 +55,12 @@ void Player::processKeyboard (Camera_Movement direction, float deltaTime) {
   if (direction == RIGHT) {
     position += rightDir * velocity;
   }
+  
+  float yValue = island -> getY(glm::vec2(position.x, position.z));
+  
+  std::cout << yValue << std::endl;
+  
+  this -> position = glm::vec3(position.x, yValue, position.z);
 
   gun -> lookAt(position, front, right, up);
   

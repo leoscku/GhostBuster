@@ -44,7 +44,8 @@ Island* island;
 
 void Window::initialize_objects()
 {
-  player = new Player(glm::vec3(0.0f, 0.0f, 0.0f));
+  island = new Island();
+  player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), island);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -72,8 +73,6 @@ void Window::initialize_objects()
     //m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
-    
-    island = new Island();
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.

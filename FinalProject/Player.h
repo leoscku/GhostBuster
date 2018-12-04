@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include "OBJObject.h"
+#include "Island.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -40,10 +41,11 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  10.0f;
+const float SPEED       =  50.0f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
+class Island;
 class Player
 {
 public:
@@ -67,9 +69,12 @@ public:
   //Player Gun
   OBJObject* gun;
   
+  //Island Reference
+  Island* island;
+  
   
   // Constructor with vectors
-  Player(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+  Player(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), Island* island = NULL, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
  
   // Constructor with scalar values
   Player(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
