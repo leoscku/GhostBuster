@@ -40,6 +40,7 @@ class Island
     glm::mat4 toWorld;
     
     int mapSize = 1025;
+    float squareSize = 2.2f;
     
     float mapArray[1025][1025];
     
@@ -63,6 +64,8 @@ class Island
     int loadTexture();
     
     int texID;
+    
+    bool inMap(glm::vec2 coord);
     
     // These variables are needed for the shader program
     GLuint VBO, VAO, EBO, CBO, VBO2;
