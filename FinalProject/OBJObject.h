@@ -48,9 +48,14 @@ public:
   ~OBJObject();
   
   glm::mat4 toWorld;
+  glm::mat4 translationM;
+  glm::mat4 rotationM;
+  glm::mat4 scaleM;
+  glm::mat4 displacementM;
   glm::vec3 position;
   glm::vec3 front;
   glm::vec3 up;
+  glm::vec3 right;
 
   float angle;
 
@@ -63,14 +68,14 @@ public:
   void scale(float coefficient);
 
   void setPosition(glm::vec3 pos);
+  
+  void moveTo(glm::vec3 pos);
 
   void rotate(glm::vec3 rotAxis, float rotAngle);
   
-  void setFront(glm::vec3 front, glm::vec3 up);
+  void initializeVector(glm::vec3 front, glm::vec3 right, glm::vec3 up);
   
-  void lookAt(glm::vec3 front, glm::vec3 up);
-  
-  void rotateEuler(float yaw, float pitch);
+  void lookAt(glm::vec3 position, glm::vec3 front, glm::vec3 right, glm::vec3 up);
 
   void loadTexture(const char* filepath);
     

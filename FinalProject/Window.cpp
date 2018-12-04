@@ -183,6 +183,8 @@ void Window::display_callback(GLFWwindow* window)
 
 void Window::processInput(GLFWwindow *window) {
   
+  //std::cout << "keyboard" << std::endl;
+  
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     player -> processKeyboard(FORWARD, deltaTime);
   }
@@ -232,6 +234,7 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
   lastX = xpos;
   lastY = ypos;
   
+  //std::cout << "mouse" << std::endl;
   player -> processMouseMovement(xoffset, yoffset);
 }
 

@@ -4,8 +4,9 @@
 
 OBJObject::OBJObject(const char* OBJfilepath, const char* TEXfilepath)
 {
-	toWorld = glm::mat4(1.0f);
+	toWorld = translationM = rotationM = scaleM = glm::mat4(1.0f);
   this -> position = glm::vec3(0.0f, 0.0f, 0.0f);
+  displacementM = glm::translate(glm::mat4(1.0), glm::vec3(11.0f, -17.0f, -38.0f));
 	parse(OBJfilepath);
   centerObject();
   loadTexture(TEXfilepath);
@@ -147,7 +148,7 @@ void OBJObject::reorderData() {
 void OBJObject::draw(GLuint shaderProgram, glm::mat4 view)
 {
     // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = view * toWorld;
+    glm::mat4 modelview = view * translationM * rotationM * displacementM * scaleM;
     // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
     // Consequently, we need to forward the projection, view, and model matrices to the shader programs
     // Get the location of the uniform variables "projection" and "modelview"
@@ -231,13 +232,18 @@ void OBJObject::centerObject() {
 }
 
 void OBJObject::scale(float coefficient) {
-  toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(coefficient)) * toWorld;
+  scaleM = glm::scale(glm::mat4(1.0f), glm::vec3(coefficient));
 }
 
 void OBJObject::setPosition(glm::vec3 pos) {
   //std::cout << "x: " << pos.x << "y: " << pos.y << "z: " << pos.z << std::endl;
   position += pos;
-  toWorld = glm::translate(glm::mat4(1.0f), pos) * toWorld;
+  translationM = glm::translate(glm::mat4(1.0f), position);
+}
+
+void OBJObject::moveTo(glm::vec3 pos) {
+  position = pos;
+  translationM = glm::translate(glm::mat4(1.0f), position);
 }
 
 void OBJObject::rotate(glm::vec3 rotAxis, float rotAngle) {
@@ -247,19 +253,17 @@ void OBJObject::rotate(glm::vec3 rotAxis, float rotAngle) {
   position = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * glm::vec4(position, 1.0f);
 }
 
-void OBJObject::setFront(glm::vec3 front, glm::vec3 up){
+void OBJObject::initializeVector(glm::vec3 front, glm::vec3 right, glm::vec3 up){
   this -> front = front;
+  this -> right = right;
   this -> up = up;
 }
 
-void OBJObject::lookAt(glm::vec3 front, glm::vec3 up) {
-  toWorld = glm::inverse(glm::lookAt(position, position + front, up)) * toWorld;
-  //toWorld = glm::translate(toWorld, position);
+void OBJObject::lookAt(glm::vec3 position, glm::vec3 front, glm::vec3 right, glm::vec3 up) {
+  
+  rotationM = glm::inverse(glm::lookAt(position, position + front, up));
 }
 
-void OBJObject::rotateEuler(float yaw, float pitch) {
-  toWorld = glm::eulerAngleYXZ(yaw, pitch, 0.0f) * toWorld;
-}
 
 /** Load a ppm file from disk.
  @input filename The location of the PPM file.  If the file is not found, an error message
