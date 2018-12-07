@@ -10,14 +10,14 @@
 
 Player::Player(glm::vec3 position, Island* island, glm::vec3 up, float yaw, float pitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), forwardDir(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
   
-  gun = new OBJObject("M4A1.obj", "web.PPM");
+  gun = new OBJObject("M4A1.obj", "gunTexture-4.ppm");
   
   gun -> initializeVector(front, right, up);
   this -> island = island;
   
   float yValue = island -> getY(glm::vec2(position.x, position.z));
   
-  std::cout << yValue << std::endl;
+  yValue += 100.0;
   
   this -> position = glm::vec3(position.x, yValue, position.z);
   this -> worldUp = up;
@@ -58,7 +58,7 @@ void Player::processKeyboard (Camera_Movement direction, float deltaTime) {
   
   float yValue = island -> getY(glm::vec2(position.x, position.z));
   
-  std::cout << yValue << std::endl;
+  yValue += 100.0;
   
   this -> position = glm::vec3(position.x, yValue, position.z);
 

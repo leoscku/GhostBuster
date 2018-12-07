@@ -70,7 +70,7 @@ void Window::initialize_objects()
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
     
     m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
-    //m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
+    m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
 }
@@ -246,6 +246,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
             glfwGetCursorPos(window, &x, &y);
             preVec = calTrackBallVec(x, y);
             lb_down = true;
+            m_pSystem->playSound( gunSound ,NULL, false, 0);
         }
         else if (actions == GLFW_RELEASE){
             lb_down = false;
