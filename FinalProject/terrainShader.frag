@@ -18,5 +18,5 @@ void main()
     //color = vec4( pos.y / (133 * 2) + 0.5, pos.y / (133 * 2) + 0.5, pos.y / (133 * 2) + 0.5, sampleExtraOutput);
     //color = vec4(texture(tex, fragTexCoord).rgb,1.0);//vec2(0.5, 0.5));// vec4(1.0f, 0.41f, 0.7f, sampleExtraOutput);
     
-    color = vec4(vec3(fragNormal * 0.5f) * vec3(1, 1, 0), 1.0);
+    color = vec4(vec3(fragNormal * 0.5f) * vec3(1, 1, 1) + vec3(0.5f, 0.5f, 0.5f), 1.0);
 }

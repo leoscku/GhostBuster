@@ -57,9 +57,7 @@ void Player::processKeyboard (Camera_Movement direction, float deltaTime) {
   }
   
   float yValue = island -> getY(glm::vec2(position.x, position.z));
-  
-  std::cout << yValue << std::endl;
-  
+    
   this -> position = glm::vec3(position.x, yValue, position.z);
 
   gun -> lookAt(position, front, right, up);
@@ -118,4 +116,8 @@ void Player::updateCameraVectors() {
 
 void Player::draw(GLuint shaderProgram) {
   gun -> draw(shaderProgram, getViewMatrix());
+}
+
+glm::vec3 Player::getPosition(){
+    return position;
 }

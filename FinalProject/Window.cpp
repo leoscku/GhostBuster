@@ -4,13 +4,15 @@ const char* window_title = "GLFW Starter Project";
 // Cube * cube;
 GLint shaderProgram;
 GLint terrainShaderProgram;
+GLint skyboxShaderProgram;
+GLint lineShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
 #define FRAGMENT_SHADER_PATH "./shader.frag"
 
 // Default camera parameters
-glm::vec3 cam_pos(0.0f, 0.0f, 75.0f);		// e  | Position of camera
+glm::vec3 Window::cam_pos(0.0f, 0.0f, 0.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
@@ -40,17 +42,36 @@ FMOD::System *m_pSystem;
 FMOD::Sound* Sound;
 FMOD::Sound* gunSound;
 
+Skybox* Window::skybox;
 Island* island;
+Bezier* bezier;
+MatrixTransform * root;
 
 void Window::initialize_objects()
 {
   island = new Island();
   player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), island);
+    
+    Window::skybox = new Skybox();
+    bezier = new Bezier();
+    
+    root = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
+    int waterSize = 20;
+    for (int i = 0; i < waterSize*waterSize; i++) {
+        int x = i % waterSize;
+        int y = i / waterSize;
+        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 200, 0, (y-  waterSize/2) * 200)) *
+                                                    glm::scale(glm::mat4(1.0f), glm::vec3(200, 200, 200)));
+        temp->addChild(bezier);
+        root->addChild(temp);
+    }
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
-    
+    skyboxShaderProgram = LoadShaders("./skyShader.vert", "./skyShader.frag");
+    lineShaderProgram = LoadShaders("./lineShader.vert", "./lineShader.frag");
+
     if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
     {
         // Report Error
@@ -144,7 +165,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 10000.0f);
 		V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 	}
 }
@@ -153,6 +174,9 @@ void Window::idle_callback()
 {
 	// Call the update function the cube
 	// cube->update();
+    cam_pos = player -> getPosition();
+    Window::V = player ->getViewMatrix();
+    bezier->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -172,8 +196,10 @@ void Window::display_callback(GLFWwindow* window)
 
   glUseProgram(terrainShaderProgram);
   island->draw(terrainShaderProgram, player -> getViewMatrix());
-  
-        
+
+    glUseProgram(skyboxShaderProgram);
+  skybox->draw(skyboxShaderProgram);
+    root->draw(lineShaderProgram, glm::mat4(1.0f));
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers

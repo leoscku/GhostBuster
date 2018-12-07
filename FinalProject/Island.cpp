@@ -178,9 +178,17 @@ void Island::bufferData(){
             
             glm::vec3 res = glm::normalize(glm::cross(first, second));
             
+            glm::vec3 second2 = glm::vec3(x * squareSize - mapSize / 2 * squareSize, mapArray[x][z + 1], (z + 1) * squareSize - mapSize / 2 * squareSize) - glm::vec3((x + 1) * squareSize - mapSize / 2 * squareSize, mapArray[x + 1][z + 1], (z + 1) * squareSize - mapSize / 2 * squareSize);
+            
+            glm::vec3 first2 = glm::vec3((x + 1) * squareSize - mapSize / 2 * squareSize, mapArray[x + 1][z], z * squareSize - mapSize / 2 * squareSize) - glm::vec3((x + 1) * squareSize - mapSize / 2 * squareSize, mapArray[x + 1][z + 1], (z + 1) * squareSize - mapSize / 2 * squareSize);
+            
+            glm::vec3 res2 = glm::normalize(glm::cross(first2, second2));
+            
             normals[x][z] += res;
             normals[x + 1][z] += res;
+            normals[x + 1][z] += res2;
             normals[x][z + 1] += res;
+            normals[x][z + 1] += res2;
             normals[x + 1][z + 1] += res;
 
         }
@@ -369,7 +377,7 @@ float Island::getY(glm::vec2 coord){
     // perform linear interpolation
     int xPos = int((x + mapSize / 2 * squareSize) / squareSize);
     int zPos = int((z + mapSize / 2 * squareSize) / squareSize);
-    std::cout << xPos << " " << zPos << std::endl;
+    //std::cout << xPos << " " << zPos << std::endl;
 
     float xCoef = fmod(x + mapSize / 2 * squareSize, squareSize);
     float zCoef = fmod(z + mapSize / 2 * squareSize, squareSize);
@@ -378,7 +386,7 @@ float Island::getY(glm::vec2 coord){
     float sp = (mapArray[xPos + 1][zPos + 1] - mapArray[xPos][zPos + 1]) * xCoef + mapArray[xPos][zPos + 1];
 
     float res = zCoef * (sp - fp) + fp;
-    return res;
+    return res  + 100;
 }
 
 bool Island::inMap(glm::vec2 coord){
