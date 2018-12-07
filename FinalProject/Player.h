@@ -41,7 +41,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  50.0f;
+const float SPEED       =  200.0f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
@@ -92,6 +92,8 @@ public:
   void processMouseScroll(float yoffset);
   
   void draw(GLuint shaderProgram);
+    
+    glm::vec3 getPosition();
   
 private:
   // Calculates the front vector from the Camera's (updated) Euler Angles

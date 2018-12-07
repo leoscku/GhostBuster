@@ -19,11 +19,14 @@
 
 #include "Island.h"
 #include "Player.h"
+#include "Bezier.h"
+#include "Skybox.h"
+#include "MatrixTransform.h"
 
 class Window
 {
 public:
-	static int width;
+    static int width;
 	static int height;
 	static glm::mat4 P; // P for projection
 	static glm::mat4 V; // V for view
@@ -42,6 +45,9 @@ public:
   static glm::vec3 calTrackBallVec(double x, double y);
   static glm::vec3 calRotateVec(glm::vec3 prev, glm::vec3 curr);
   static void processInput(GLFWwindow *window);
+    
+    static glm::vec3 cam_pos;
+    static Skybox* skybox;
 };
 
 #endif
