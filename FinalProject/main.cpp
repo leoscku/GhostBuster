@@ -56,8 +56,11 @@ void setup_opengl_settings()
 	// You can also use the paramter of GL_LINE instead of GL_FILL to see wireframes
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-    glClearColor(0.05f, 0.8f, 0.85f, 1.0f);
-    
+
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);	// Set clear color
+	glClearColor(0.05f, 0.8f, 0.85f, 1.0f);
+
 }
 
 void print_versions()

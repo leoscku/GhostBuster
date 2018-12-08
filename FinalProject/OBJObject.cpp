@@ -147,29 +147,39 @@ void OBJObject::reorderData() {
 
 void OBJObject::draw(GLuint shaderProgram, glm::mat4 view)
 {
-    // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = view * translationM * rotationM * displacementM * scaleM;
-    // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-    // Consequently, we need to forward the projection, view, and model matrices to the shader programs
-    // Get the location of the uniform variables "projection" and "modelview"
-    uProjection = glGetUniformLocation(shaderProgram, "projection");
-    uModelview = glGetUniformLocation(shaderProgram, "modelview");
-    uTex = glGetUniformLocation(shaderProgram, "tex");
-    
-    // Now send these values to the shader program
-    glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-    glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-    
-    // glUniform1i(uTex, textureID);
-    glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
-    glBindTexture(GL_TEXTURE_2D, textureID);
+  // Calculate the combination of the model and view (camera inverse) matrices
+  glm::mat4 modelview = view * translationM * rotationM * displacementM * scaleM;
+  toWorld = translationM * rotationM * displacementM * scaleM;
+  glm::mat3 model = glm::mat3(glm::transpose(glm::inverse(toWorld)));
+  // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
+  // Consequently, we need to forward the projection, view, and model matrices to the shader programs
+  // Get the location of the uniform variables "projection" and "modelview"
+  uProjection = glGetUniformLocation(shaderProgram, "projection");
+  uModelview = glGetUniformLocation(shaderProgram, "modelview");
+  
+  uToWorld = glGetUniformLocation(shaderProgram, "toWorld");
+  uModel = glGetUniformLocation(shaderProgram, "model");
+  uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
+  uTex = glGetUniformLocation(shaderProgram, "tex");
 
-    // Now draw the object. We simply need to bind the VAO associated with it.
-    glBindVertexArray(VAO);
-    // Tell OpenGL to draw with triangles, using all indices, the type of the indices, and the offset to start from
-    glDrawElements(GL_TRIANGLES, (int)outIndices.size(), GL_UNSIGNED_INT, 0);
-    // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
-    glBindVertexArray(0);
+    
+  // Now send these values to the shader program
+  glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+  glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+  glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &toWorld[0][0]);
+  glUniformMatrix3fv(uModel, 1, GL_FALSE, &model[0][0]);
+  glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  
+  // glUniform1i(uTex, textureID);
+  glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+  glBindTexture(GL_TEXTURE_2D, textureID);
+
+  // Now draw the object. We simply need to bind the VAO associated with it.
+  glBindVertexArray(VAO);
+  // Tell OpenGL to draw with triangles, using all indices, the type of the indices, and the offset to start from
+  glDrawElements(GL_TRIANGLES, (int)outIndices.size(), GL_UNSIGNED_INT, 0);
+  // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+  glBindVertexArray(0);
 }
 
 void OBJObject::update()
