@@ -56,9 +56,7 @@ void setup_opengl_settings()
 	// You can also use the paramter of GL_LINE instead of GL_FILL to see wireframes
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);	// Set clear color
-	glClearColor(0.05f, 0.8f, 0.85f, 1.0f);
+    glClearColor(0.05f, 0.8f, 0.85f, 1.0f);
     
 }
 
@@ -77,6 +75,7 @@ void print_versions()
 int main(void)
 {
 	// Create the GLFW window
+    
 	window = Window::create_window(1920, 1080);
 	// Print OpenGL and GLSL versions
 	print_versions();

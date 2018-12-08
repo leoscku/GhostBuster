@@ -36,3 +36,13 @@ void MatrixTransform::setTransform(glm::mat4 trans) {
     transform = trans;
     
 }
+
+std::list<Node*> MatrixTransform::getChildList(){
+    return childList;
+}
+
+void MatrixTransform::updateDistance(){
+    transform = glm::translate(transform, glm::vec3(distance * -1, 0, 0));
+    distance = fmod((distance + 0.01), 5);
+    transform = glm::translate(transform, glm::vec3(distance, 0, 0));
+}

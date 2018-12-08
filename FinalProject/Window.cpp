@@ -91,7 +91,7 @@ void Window::initialize_objects()
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
     
     m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
-    //m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
+    m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
 }
@@ -176,7 +176,11 @@ void Window::idle_callback()
 	// cube->update();
     cam_pos = player -> getPosition();
     Window::V = player ->getViewMatrix();
-    bezier->update();
+    //bezier->update();
+    std::list<Node*> temp = root->getChildList();
+    for (auto key: temp){
+        ((MatrixTransform*)key)->updateDistance();
+    }
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -266,12 +270,14 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
 void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mods){
     if(button == GLFW_MOUSE_BUTTON_LEFT){
 
-        if(actions == GLFW_PRESS){
 
+        if(actions == GLFW_PRESS){
+            m_pSystem->playSound( gunSound,NULL, false, 0);
             double x, y;
             glfwGetCursorPos(window, &x, &y);
             preVec = calTrackBallVec(x, y);
             lb_down = true;
+            
         }
         else if (actions == GLFW_RELEASE){
             lb_down = false;
