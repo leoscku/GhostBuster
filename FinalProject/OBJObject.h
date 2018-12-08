@@ -34,7 +34,7 @@ private:
   
   // These variables are needed for the shader program
   GLuint VBO, VBO2, VBO3, VAO, EBO;
-  GLuint uProjection, uModelview, uTex;
+  GLuint uProjection, uModelview, uTex, uToWorld, uModel, uViewPos;
   GLuint textureID;
   
   void parse(const char* filepath);

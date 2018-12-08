@@ -263,31 +263,33 @@ void Island::bufferData(){
 
 void Island::draw(GLuint shaderProgram, glm::mat4 view)
 {
-    glUseProgram(shaderProgram);
+  glUseProgram(shaderProgram);
 
-    // Calculate the combination of the model and view (camera inverse) matrices
-    glm::mat4 modelview = view;
-    // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-    // Consequently, we need to forward the projection, view, and model matrices to the shader programs
-    // Get the location of the uniform variables "projection" and "modelview"
-    uProjection = glGetUniformLocation(shaderProgram, "projection");
-    uModelview = glGetUniformLocation(shaderProgram, "modelview");
-    
-    // Now send these values to the shader program
-    glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-    glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-    
-    int texIdPos = glGetUniformLocation(shaderProgram, "tex");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID);
-    glUniform1i(texIdPos, 0);
-    
-    // Now draw the object. We simply need to bind the VAO associated with it.
-    glBindVertexArray(VAO);
-    
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
-    glBindVertexArray(0);
+  // Calculate the combination of the model and view (camera inverse) matrices
+  glm::mat4 modelview = view;
+  // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
+  // Consequently, we need to forward the projection, view, and model matrices to the shader programs
+  // Get the location of the uniform variables "projection" and "modelview"
+  uProjection = glGetUniformLocation(shaderProgram, "projection");
+  uModelview = glGetUniformLocation(shaderProgram, "modelview");
+  uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
+  
+  // Now send these values to the shader program
+  glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+  glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+  glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  
+  int texIdPos = glGetUniformLocation(shaderProgram, "tex");
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texID);
+  glUniform1i(texIdPos, 0);
+  
+  // Now draw the object. We simply need to bind the VAO associated with it.
+  glBindVertexArray(VAO);
+  
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  // Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+  glBindVertexArray(0);
 }
 
 void Island::reGenerateData(){

@@ -69,7 +69,7 @@ class Island
     
     // These variables are needed for the shader program
     GLuint VBO, VAO, EBO, CBO, VBO2;
-    GLuint uProjection, uModelview;
+    GLuint uProjection, uModelview, uViewPos;
 };
 
 #endif /* island_hpp */
