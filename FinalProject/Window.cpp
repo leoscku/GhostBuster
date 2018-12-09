@@ -279,17 +279,15 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
     if(button == GLFW_MOUSE_BUTTON_LEFT){
 
 
-          double x, y;
-          glfwGetCursorPos(window, &x, &y);
-          preVec = calTrackBallVec(x, y);
-          lb_down = true;
-          particles -> update(0.03f, player -> getMuzzlePosition(), 200);
-          m_pSystem->playSound( gunSound ,NULL, false, 0);
-        }
-        else if (actions == GLFW_RELEASE){
-            lb_down = false;
+      double x, y;
+      glfwGetCursorPos(window, &x, &y);
+      preVec = calTrackBallVec(x, y);
+      lb_down = true;
+      particles -> update(0.03f, player -> getMuzzlePosition(), 200);
+      m_pSystem->playSound( gunSound ,NULL, false, 0);
 
-        }
+    }else if (actions == GLFW_RELEASE){
+      lb_down = false;
     }
 }
 
