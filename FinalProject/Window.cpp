@@ -6,6 +6,7 @@ GLint shaderProgram;
 GLint terrainShaderProgram;
 GLint skyboxShaderProgram;
 GLint lineShaderProgram;
+GLint particleShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
@@ -46,21 +47,23 @@ Skybox* Window::skybox;
 Island* island;
 Bezier* bezier;
 MatrixTransform * root;
+ParticleGenerator* particles;
 
 void Window::initialize_objects()
 {
   island = new Island();
   player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), island);
-    
+  particles = new ParticleGenerator(5000, player);
+
     Window::skybox = new Skybox();
     bezier = new Bezier();
-    
+
     root = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
     int waterSize = 20;
     for (int i = 0; i < waterSize*waterSize; i++) {
         int x = i % waterSize;
         int y = i / waterSize;
-        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 2000, -10, (y -  waterSize/2) * 2000)) *
+        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 2000, -500, (y -  waterSize/2) * 2000)) *
                                                     glm::scale(glm::mat4(1.0f), glm::vec3(2000, 20, 2000)));
         temp->addChild(bezier);
         root->addChild(temp);
@@ -68,7 +71,8 @@ void Window::initialize_objects()
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-    terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
+  particleShaderProgram = LoadShaders("./particleShader.vert", "./particleShader.frag");
+  terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
     skyboxShaderProgram = LoadShaders("./skyShader.vert", "./skyShader.frag");
     lineShaderProgram = LoadShaders("./lineShader.vert", "./lineShader.frag");
 
@@ -77,19 +81,19 @@ void Window::initialize_objects()
         // Report Error
         return;
     }
-    
+
     int driverCount = 0;
     m_pSystem->getNumDrivers(&driverCount);
-    
+
     if (driverCount == 0)
     {
         // Report Error
         return;
     }
-    
+
     // Initialize our Instance with 36 Channels
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
-    
+
     m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
     m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
@@ -111,7 +115,7 @@ GLFWwindow* Window::create_window(int width, int height)
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		return NULL;
 	}
-  
+
   lastX = width / 2.0f;
   lastY = height / 2.0f;
 
@@ -181,6 +185,7 @@ void Window::idle_callback()
     for (auto key: temp){
         ((MatrixTransform*)key)->updateDistance();
     }
+    particles -> update(0.03f, player -> getMuzzlePosition(), 0);
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -188,9 +193,9 @@ void Window::display_callback(GLFWwindow* window)
   float currentFrame = glfwGetTime();
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
-  
+
   processInput(window);
-  
+
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -198,12 +203,16 @@ void Window::display_callback(GLFWwindow* window)
 	glUseProgram(shaderProgram);
   player -> draw(shaderProgram);
 
+  glUseProgram(particleShaderProgram);
+  particles -> draw(particleShaderProgram, player -> getViewMatrix());
+
   glUseProgram(terrainShaderProgram);
   island->draw(terrainShaderProgram, player -> getViewMatrix());
 
-    glUseProgram(skyboxShaderProgram);
+  glUseProgram(skyboxShaderProgram);
   skybox->draw(skyboxShaderProgram);
-    root->draw(lineShaderProgram, glm::mat4(1.0f));
+  root->draw(lineShaderProgram, glm::mat4(1.0f));
+
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -211,21 +220,21 @@ void Window::display_callback(GLFWwindow* window)
 }
 
 void Window::processInput(GLFWwindow *window) {
-  
+
   //std::cout << "keyboard" << std::endl;
-  
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     player -> processKeyboard(FORWARD, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     player -> processKeyboard(BACKWARD, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     player -> processKeyboard(LEFT, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     player -> processKeyboard(RIGHT, deltaTime);
   }
@@ -242,7 +251,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
-        
+
         if (key == GLFW_KEY_9){
             island->reGenerateData();
         }
@@ -256,13 +265,13 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
     lastY = ypos;
     firstMouse = false;
   }
-  
+
   float xoffset = xpos - lastX;
   float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-  
+
   lastX = xpos;
   lastY = ypos;
-  
+
   //std::cout << "mouse" << std::endl;
   player -> processMouseMovement(xoffset, yoffset);
 }
@@ -271,18 +280,15 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
     if(button == GLFW_MOUSE_BUTTON_LEFT){
 
 
-        if(actions == GLFW_PRESS){
-            m_pSystem->playSound( gunSound,NULL, false, 0);
-            double x, y;
-            glfwGetCursorPos(window, &x, &y);
-            preVec = calTrackBallVec(x, y);
-            lb_down = true;
-            m_pSystem->playSound( gunSound ,NULL, false, 0);
-        }
-        else if (actions == GLFW_RELEASE){
-            lb_down = false;
+      double x, y;
+      glfwGetCursorPos(window, &x, &y);
+      preVec = calTrackBallVec(x, y);
+      lb_down = true;
+      particles -> update(0.03f, player -> getMuzzlePosition(), 200);
+      m_pSystem->playSound( gunSound ,NULL, false, 0);
 
-        }
+    }else if (actions == GLFW_RELEASE){
+      lb_down = false;
     }
 }
 

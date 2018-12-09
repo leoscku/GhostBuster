@@ -93,7 +93,13 @@ public:
   
   void draw(GLuint shaderProgram);
     
-    glm::vec3 getPosition();
+  glm::vec3 getPosition();
+  
+  glm::vec3 getMuzzlePosition();
+  
+  glm::vec3 getFront();
+  
+  glm::vec3 getRight();
   
 private:
   // Calculates the front vector from the Camera's (updated) Euler Angles
