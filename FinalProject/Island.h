@@ -40,7 +40,7 @@ class Island
     glm::mat4 toWorld;
     
     int mapSize = 1025;
-    float squareSize = 2.2f;
+    float squareSize = 4.0f;
     
     float mapArray[1025][1025];
     

@@ -60,8 +60,8 @@ void Window::initialize_objects()
     for (int i = 0; i < waterSize*waterSize; i++) {
         int x = i % waterSize;
         int y = i / waterSize;
-        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 200, 0, (y-  waterSize/2) * 200)) *
-                                                    glm::scale(glm::mat4(1.0f), glm::vec3(200, 200, 200)));
+        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 2000, -10, (y -  waterSize/2) * 2000)) *
+                                                    glm::scale(glm::mat4(1.0f), glm::vec3(2000, 20, 2000)));
         temp->addChild(bezier);
         root->addChild(temp);
     }

@@ -14,11 +14,11 @@ in vec3 fragPos;
 out vec4 color;
 
 vec3 getIntensityScale(float intensity) {
-  if (intensity > 0.95)
+  if (intensity > 0.75)
     return vec3(1.0,1,1);
   else if (intensity > 0.5)
     return vec3(0.7,0.7,0.7);
-  else if (intensity > 0.05)
+  else if (intensity > 0.25)
     return vec3(0.35,0.35,0.35);
   else
     return vec3(0.1,0.1,0.1);
@@ -47,10 +47,10 @@ void main()
   // vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
   vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
   
-  vec3 result = (specular * 0.1 + diffuse * 0.8 + 0.1) * objectColor;
+  vec3 result = (specular * 0.0000001 + diffuse * 0.89999999 + 0.1) * objectColor;
   color = vec4(result, 1.0f);
   float edge = max(0, dot(viewDir, norm));
-  if (edge < 0.25) {
+  if (edge < 0.175) {
     color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
   }
 }

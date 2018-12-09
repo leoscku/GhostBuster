@@ -113,7 +113,7 @@ void Island::squareStep(int x, int z, int length){
     sum /= pointNum;
     
     float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
-    sum += delta / 1.5 ;
+    sum += delta  ;
 
     mapArray[x][z] = sum;
 }
@@ -148,7 +148,7 @@ void Island::diamondStep(int x, int z, int length){
     
     float delta = ((float)rand()/(float)(RAND_MAX)) * float(size) - float(size) * 0.5f;
 
-    sum += delta / 1.5 ;
+    sum += delta ;
     
     mapArray[x][z] = sum;
 }
@@ -388,7 +388,7 @@ float Island::getY(glm::vec2 coord){
     float sp = (mapArray[xPos + 1][zPos + 1] - mapArray[xPos][zPos + 1]) * xCoef + mapArray[xPos][zPos + 1];
 
     float res = zCoef * (sp - fp) + fp;
-    return res  + 100;
+    return res;
 }
 
 bool Island::inMap(glm::vec2 coord){

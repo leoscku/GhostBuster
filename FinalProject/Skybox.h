@@ -35,7 +35,7 @@ public:
     // Define the coordinates and indices needed to draw the cube. Note that it is not necessary
     // to use a 2-dimensional array, since the layout in memory is the same as a 1-dimensional array.
     // This just looks nicer since it's easy to tell what coordinates/indices belong where.
-    float length = 600.0f;
+    float length = 5000.0f;
     float vertices[108] = {
         // positions
         -length,  length, -length,
