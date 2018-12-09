@@ -20,6 +20,9 @@
 
 #include <random>
 
+#include "Window.h"
+#include "Player.h"
+
 // Represents a single particle and its state
 struct Particle {
   glm::vec3 position, velocity;
@@ -29,24 +32,31 @@ struct Particle {
   Particle() : position(0.0f), velocity(0.0f), color(1.0f), life(0.0f) { }
 };
 
+class Player;
+
 class ParticleGenerator
 {
 public:
   // Constructor
-  ParticleGenerator(int amount);
+  ParticleGenerator(int amount, Player* p);
   // Update all particles
-  void update(GLfloat dt, glm::vec3 position, GLuint newParticles, glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.0f));
+  void update(float dt, glm::vec3 position, int newParticles, glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.0f));
   // Render all particles
-  void Draw();
+  void draw(GLuint shaderProgram, glm::mat4 view);
 private:
+  Player* player;
+  glm::mat4 displacementM;
   // State
   std::vector<Particle> particles;
   int amount;
   
   // Render state
-  Shader shader;
-  Texture2D texture;
-  GLuint VAO;
+  GLuint VBO, VBO2, VBO3, VAO, EBO;
+  GLuint uProjection, uModelview, uTex;
+  
+  glm::mat4 translationM;
+  
+  
   
   // Initializes buffer and vertex attributes
   void init();

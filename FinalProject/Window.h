@@ -22,6 +22,7 @@
 #include "Bezier.h"
 #include "Skybox.h"
 #include "MatrixTransform.h"
+#include "ParticleGenerator.h"
 
 class Window
 {
@@ -46,8 +47,8 @@ public:
   static glm::vec3 calRotateVec(glm::vec3 prev, glm::vec3 curr);
   static void processInput(GLFWwindow *window);
     
-    static glm::vec3 cam_pos;
-    static Skybox* skybox;
+  static glm::vec3 cam_pos;
+  static Skybox* skybox;
 };
 
 #endif

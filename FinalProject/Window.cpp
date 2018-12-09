@@ -6,6 +6,7 @@ GLint shaderProgram;
 GLint terrainShaderProgram;
 GLint skyboxShaderProgram;
 GLint lineShaderProgram;
+GLint particleShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
@@ -46,11 +47,13 @@ Skybox* Window::skybox;
 Island* island;
 Bezier* bezier;
 MatrixTransform * root;
+ParticleGenerator* particles;
 
 void Window::initialize_objects()
 {
   island = new Island();
   player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), island);
+  particles = new ParticleGenerator(5000, player);
     
     Window::skybox = new Skybox();
     bezier = new Bezier();
@@ -60,15 +63,15 @@ void Window::initialize_objects()
     for (int i = 0; i < waterSize*waterSize; i++) {
         int x = i % waterSize;
         int y = i / waterSize;
-        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 200, 0, (y-  waterSize/2) * 200)) *
-                                                    glm::scale(glm::mat4(1.0f), glm::vec3(200, 200, 200)));
+        MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 200, 0, (y-  waterSize/2) * 200)) * glm::scale(glm::mat4(1.0f), glm::vec3(200, 200, 200)));
         temp->addChild(bezier);
         root->addChild(temp);
     }
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-    terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
+  particleShaderProgram = LoadShaders("./particleShader.vert", "./particleShader.frag");
+  terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
     skyboxShaderProgram = LoadShaders("./skyShader.vert", "./skyShader.frag");
     lineShaderProgram = LoadShaders("./lineShader.vert", "./lineShader.frag");
 
@@ -177,6 +180,8 @@ void Window::idle_callback()
     cam_pos = player -> getPosition();
     Window::V = player ->getViewMatrix();
     bezier->update();
+  
+  particles -> update(0.03f, player -> getMuzzlePosition(), 0);
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -193,13 +198,17 @@ void Window::display_callback(GLFWwindow* window)
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
   player -> draw(shaderProgram);
+  
+  glUseProgram(particleShaderProgram);
+  particles -> draw(particleShaderProgram, player -> getViewMatrix());
 
   glUseProgram(terrainShaderProgram);
   island->draw(terrainShaderProgram, player -> getViewMatrix());
 
-    glUseProgram(skyboxShaderProgram);
+  glUseProgram(skyboxShaderProgram);
   skybox->draw(skyboxShaderProgram);
-    root->draw(lineShaderProgram, glm::mat4(1.0f));
+  root->draw(lineShaderProgram, glm::mat4(1.0f));
+  
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -268,11 +277,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
 
         if(actions == GLFW_PRESS){
 
-            double x, y;
-            glfwGetCursorPos(window, &x, &y);
-            preVec = calTrackBallVec(x, y);
-            lb_down = true;
-            m_pSystem->playSound( gunSound ,NULL, false, 0);
+          double x, y;
+          glfwGetCursorPos(window, &x, &y);
+          preVec = calTrackBallVec(x, y);
+          lb_down = true;
+          particles -> update(0.03f, player -> getMuzzlePosition(), 200);
+          m_pSystem->playSound( gunSound ,NULL, false, 0);
         }
         else if (actions == GLFW_RELEASE){
             lb_down = false;

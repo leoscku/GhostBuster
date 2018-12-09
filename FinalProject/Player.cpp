@@ -121,5 +121,19 @@ void Player::draw(GLuint shaderProgram) {
 }
 
 glm::vec3 Player::getPosition(){
-    return position;
+  return position;
+}
+
+glm::vec3 Player::getMuzzlePosition() {
+  //std::cout << (position + (front * 50.0f)).y << std::endl;
+  glm::vec3 down = glm::cross(front, right);
+  return position + (front * 45.0f) + (right * 4.0f) + (down * 3.2f);
+}
+
+glm::vec3 Player::getFront() {
+  return front;
+}
+
+glm::vec3 Player::getRight() {
+  return right;
 }
