@@ -30,7 +30,7 @@ Skybox::~Skybox()
 
 void Skybox::draw(GLuint shaderProgram)
 {
-    glm::mat4 modelview = glm::mat4(glm::mat3(Window::V)) * toWorld;
+    glm::mat4 modelview = toWorld;//glm::mat4(glm::mat3(Window::V)) * toWorld;
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
     glUseProgram(shaderProgram);
     uProjection = glGetUniformLocation(shaderProgram, "projection");

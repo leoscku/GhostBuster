@@ -36,9 +36,12 @@ public:
     void addChild(Node* node);
     void update();
     glm::mat4 getTransform();
-    void setTransform(glm::mat4 trans); 
+    void setTransform(glm::mat4 trans);
+    std::list<Node*> getChildList();
+    void updateDistance();
 private:
-    std::list<Node*> childList; 
+    std::list<Node*> childList;
+    float distance;
 };
 
 #endif /* MatrixTransform_h */

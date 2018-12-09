@@ -54,10 +54,10 @@ void Window::initialize_objects()
   island = new Island();
   player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), island);
   particles = new ParticleGenerator(5000, player);
-    
+
     Window::skybox = new Skybox();
     bezier = new Bezier();
-    
+
     root = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
     int waterSize = 20;
     for (int i = 0; i < waterSize*waterSize; i++) {
@@ -80,19 +80,19 @@ void Window::initialize_objects()
         // Report Error
         return;
     }
-    
+
     int driverCount = 0;
     m_pSystem->getNumDrivers(&driverCount);
-    
+
     if (driverCount == 0)
     {
         // Report Error
         return;
     }
-    
+
     // Initialize our Instance with 36 Channels
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
-    
+
     m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
     m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
 
@@ -114,7 +114,7 @@ GLFWwindow* Window::create_window(int width, int height)
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		return NULL;
 	}
-  
+
   lastX = width / 2.0f;
   lastY = height / 2.0f;
 
@@ -179,9 +179,12 @@ void Window::idle_callback()
 	// cube->update();
     cam_pos = player -> getPosition();
     Window::V = player ->getViewMatrix();
-    bezier->update();
-  
-  particles -> update(0.03f, player -> getMuzzlePosition(), 0);
+    //bezier->update();
+    std::list<Node*> temp = root->getChildList();
+    for (auto key: temp){
+        ((MatrixTransform*)key)->updateDistance();
+    }
+    particles -> update(0.03f, player -> getMuzzlePosition(), 0);
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -189,16 +192,16 @@ void Window::display_callback(GLFWwindow* window)
   float currentFrame = glfwGetTime();
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
-  
+
   processInput(window);
-  
+
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
   player -> draw(shaderProgram);
-  
+
   glUseProgram(particleShaderProgram);
   particles -> draw(particleShaderProgram, player -> getViewMatrix());
 
@@ -208,7 +211,7 @@ void Window::display_callback(GLFWwindow* window)
   glUseProgram(skyboxShaderProgram);
   skybox->draw(skyboxShaderProgram);
   root->draw(lineShaderProgram, glm::mat4(1.0f));
-  
+
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -216,21 +219,21 @@ void Window::display_callback(GLFWwindow* window)
 }
 
 void Window::processInput(GLFWwindow *window) {
-  
+
   //std::cout << "keyboard" << std::endl;
-  
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     player -> processKeyboard(FORWARD, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     player -> processKeyboard(BACKWARD, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     player -> processKeyboard(LEFT, deltaTime);
   }
-  
+
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     player -> processKeyboard(RIGHT, deltaTime);
   }
@@ -247,7 +250,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
-        
+
         if (key == GLFW_KEY_9){
             island->reGenerateData();
         }
@@ -261,13 +264,13 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
     lastY = ypos;
     firstMouse = false;
   }
-  
+
   float xoffset = xpos - lastX;
   float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-  
+
   lastX = xpos;
   lastY = ypos;
-  
+
   //std::cout << "mouse" << std::endl;
   player -> processMouseMovement(xoffset, yoffset);
 }
@@ -275,7 +278,6 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
 void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mods){
     if(button == GLFW_MOUSE_BUTTON_LEFT){
 
-        if(actions == GLFW_PRESS){
 
           double x, y;
           glfwGetCursorPos(window, &x, &y);
