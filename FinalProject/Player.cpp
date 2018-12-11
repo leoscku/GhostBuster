@@ -127,7 +127,7 @@ glm::vec3 Player::getPosition(){
 glm::vec3 Player::getMuzzlePosition() {
   //std::cout << (position + (front * 50.0f)).y << std::endl;
   glm::vec3 down = glm::cross(front, right);
-  return position + (front * 45.0f) + (right * 4.0f) + (down * 3.2f);
+  return position + (front * 90.0f) + (right * 8.0f) + (down * 7.5f);
 }
 
 glm::vec3 Player::getFront() {

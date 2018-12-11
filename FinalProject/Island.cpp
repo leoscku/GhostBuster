@@ -158,6 +158,7 @@ void Island::bufferData(){
     
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
+          mapArray[x][z] = mapArray[x][z] + 200;
             coordData.push_back(glm::vec3(x * squareSize - mapSize / 2 * squareSize, mapArray[x][z], z * squareSize - mapSize / 2 * squareSize));
             texture.push_back(glm::vec2(float(x) / (mapSize - 1), float(z) / (mapSize - 1)));
             normals[x][z] = glm::vec3(0);
@@ -299,6 +300,7 @@ void Island::reGenerateData(){
     coordData.clear();
     for (int x = 0; x < mapSize ; x++){
         for (int z = 0;z < mapSize ; z++){
+          mapArray[x][z] = mapArray[x][z] + 100;
             coordData.push_back(glm::vec3(x * squareSize - mapSize / 2 * squareSize, mapArray[x][z], z * squareSize - mapSize / 2 * squareSize));
         }
     }
