@@ -23,6 +23,7 @@
 #include "Skybox.h"
 #include "MatrixTransform.h"
 #include "ParticleGenerator.h"
+#include "Ghost.h"
 
 class Window
 {

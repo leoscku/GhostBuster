@@ -7,6 +7,7 @@ GLint terrainShaderProgram;
 GLint skyboxShaderProgram;
 GLint lineShaderProgram;
 GLint particleShaderProgram;
+GLint ghostShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
@@ -48,6 +49,8 @@ Island* island;
 Bezier* bezier;
 MatrixTransform * root;
 ParticleGenerator* particles;
+Ghost* ghost;
+std::vector<Ghost*> ghostGroup;
 
 void Window::initialize_objects()
 {
@@ -64,10 +67,12 @@ void Window::initialize_objects()
         int x = i % waterSize;
         int y = i / waterSize;
         MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 2000, 0, (y -  waterSize/2) * 2000)) *
-                                                    glm::scale(glm::mat4(1.0f), glm::vec3(2000, 20, 2000)));
+                                                    glm::scale(glm::mat4(1.0f), glm::vec3(2000, 200, 2000)));
         temp->addChild(bezier);
         root->addChild(temp);
     }
+  
+  ghost = new Ghost(0, 0, island);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -75,6 +80,12 @@ void Window::initialize_objects()
   terrainShaderProgram = LoadShaders("./terrainShader.vert", "./terrainShader.frag");
     skyboxShaderProgram = LoadShaders("./skyShader.vert", "./skyShader.frag");
     lineShaderProgram = LoadShaders("./lineShader.vert", "./lineShader.frag");
+  ghostShaderProgram = LoadShaders("./ghostShader.vert", "./ghostShader.frag");
+  
+  for(int i =0; i < 10; i++){
+    ghostGroup.push_back(new Ghost(i * 10, i * 15, island));
+  }
+  
 
     if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
     {
@@ -182,9 +193,15 @@ void Window::idle_callback()
     Window::V = player ->getViewMatrix();
     //bezier->update();
     std::list<Node*> temp = root->getChildList();
+  //ghost->update();
     for (auto key: temp){
         ((MatrixTransform*)key)->updateDistance();
     }
+  
+  for(auto g: ghostGroup){
+    g->update();
+  }
+  
     particles -> update(0.03f, player -> getMuzzlePosition(), 0);
 }
 
@@ -212,7 +229,12 @@ void Window::display_callback(GLFWwindow* window)
   glUseProgram(skyboxShaderProgram);
   skybox->draw(skyboxShaderProgram);
   root->draw(lineShaderProgram, glm::mat4(1.0f));
+  
+  //ghost->draw(ghostShaderProgram, player -> getViewMatrix());
 
+  for(auto g: ghostGroup){
+    g->draw(ghostShaderProgram, player -> getViewMatrix());
+  }
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -286,6 +308,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
       if (actions == GLFW_PRESS){
         particles -> update(0.03f, player -> getMuzzlePosition(), 200);
         m_pSystem->playSound( gunSound ,NULL, false, 0);
+        for (auto g :ghostGroup){
+          if(g->getHit(player->getPosition(), player->getFront())){
+            g->hp = g->hp -1;
+            std::cout<<"Remaining HP:" << g->hp << std::endl;
+          }
+        }
       }
     }else if (actions == GLFW_RELEASE){
       lb_down = false;
