@@ -9,18 +9,20 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 
-out vec3 fragPos;
-out vec3 fragNormal;
 // Uniform variables can be updated by fetching their location and passing values to that location
 uniform mat4 projection;
 uniform mat4 modelview;
+uniform mat4 toWorld;
+uniform mat3 model;
+
+out vec3 fragNormalFix;
+out vec3 fragPos;
 
 void main()
 {
-    // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
-    gl_Position = projection * modelview * vec4(position.x, position.y, position.z, 1.0);
+  gl_Position = projection * modelview * vec4(position.x, position.y, position.z, 1.0);
   
-    fragNormal = normal;
-    
-    fragPos = position;
+  fragNormalFix = model * normal;
+  fragPos = vec3(toWorld * vec4(position, 1.0f));
+  
 }

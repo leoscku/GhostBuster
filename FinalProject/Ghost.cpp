@@ -145,20 +145,21 @@ void Ghost::draw(GLuint shaderProgram, glm::mat4 view){
   glm::mat4 toWorld = glm::translate(glm::mat4(1.0f), location) * glm::rotate(glm::mat4(1.0f),  theta, glm::vec3(0,1,0));
   glm::mat4 modelview = view * toWorld;
   glm::mat3 model = glm::mat3(glm::transpose(glm::inverse(toWorld)));
-  // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-  // Consequently, we need to forward the projection, view, and model matrices to the shader programs
-  // Get the location of the uniform variables "projection" and "modelview"
+  
+  GLuint uToWorld = glGetUniformLocation(shaderProgram, "toWorld");
+  GLuint uModel = glGetUniformLocation(shaderProgram, "model");
+  GLuint uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
   GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
   GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
-  //GLuint uToWorld = glGetUniformLocation(shaderProgram, "toWorld");
-  //GLuint uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
   
   
   // Now send these values to the shader program
   glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
   glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-  //glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &toWorld[0][0]);
-  //glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &toWorld[0][0]);
+  glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  glUniformMatrix3fv(uModel, 1, GL_FALSE, &model[0][0]);
+
   
   // Now draw the object. We simply need to bind the VAO associated with it.
   glBindVertexArray(VAO);
@@ -247,6 +248,9 @@ void Ghost::changeDir(){
 }
 
 bool Ghost::getHit(glm::vec3 position, glm::vec3 dir){
+  if (hp <= 0) {
+    return false;
+  }
   glm::vec3 toGhost = (location - position);
   float thetaCosine = asin(50 / glm::length(toGhost));
   float theta2Cosine = acos(glm::dot(dir, glm::normalize(toGhost)));
