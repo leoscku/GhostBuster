@@ -59,7 +59,7 @@ class Island
 
     float random(int length);
     
-    void reGenerateData();
+    void reGenerateData(unsigned int seed);
     
     int loadTexture();
     

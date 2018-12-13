@@ -13,7 +13,7 @@
 
 
 Island::Island(){
-    srand(time(NULL));
+    srand(5);
     for (int x = 0; x < mapSize; x++){
         for (int z = 0;z < mapSize; z++){
             mapArray[x][z] = 0;
@@ -293,8 +293,15 @@ void Island::draw(GLuint shaderProgram, glm::mat4 view)
   glBindVertexArray(0);
 }
 
-void Island::reGenerateData(){
-    srand(time(NULL));
+void Island::reGenerateData(unsigned int seed){
+  
+  for (int x = 0; x < mapSize; x++){
+    for (int z = 0;z < mapSize; z++){
+      mapArray[x][z] = 0;
+    }
+  }
+  
+    srand(seed);
     mapSquare(mapSize);
     
     coordData.clear();

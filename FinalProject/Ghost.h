@@ -25,7 +25,7 @@ class Ghost{
 public:
   Ghost(float x, float y, Island* island);
   Island* island;
-  int hp = 5;
+  int hp = 3;
   glm::vec3 color = glm::vec3(0, 0, 0);
   glm::vec2 coord = glm::vec2(0, 0);
   glm::vec2 dir = glm::vec2(1, 0);
