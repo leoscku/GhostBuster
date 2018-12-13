@@ -285,7 +285,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		}
 
         if (key == GLFW_KEY_9){
-            island->reGenerateData();
+            island->reGenerateData(time(NULL));
+        }
+        if (key == GLFW_KEY_0){
+          island->reGenerateData(5);
         }
 	}
 }
