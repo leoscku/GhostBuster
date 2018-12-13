@@ -26,11 +26,11 @@ void main()
 {
     vec3 I = normalize(fragPosition - cameraPos);
     vec3 R = reflect(I, normalize(fragNormal));
-    vec4 reflectColor = vec4(texture(skybox, R).rgb, 1.0);
+    vec4 reflectColor = vec4(texture(skybox, R).rgb, 1.0) ;
     
     float ratio = 1.00 / 1.33;
     vec3 Rf = refract(I, -normalize(fragNormal), ratio);
-    vec4 refractColor = vec4(texture(skybox, Rf).rgb, 1.0);
+    vec4 refractColor = vec4(texture(skybox, Rf).rgb, 1.0) * 4;
     
     // color = reflectColor*0.15 + refractColor*0.85;
     color = mix(reflectColor, refractColor, calculateFresnel());

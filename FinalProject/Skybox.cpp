@@ -56,7 +56,7 @@ void Skybox::loadSkyboxTextures() {
     glGenTextures(1, &skyTextureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyTextureID);
     // std::vector<std::string> faces = {"./skybox4/right.jpg", "./skybox4/left.jpg", "./skybox4/top.jpg", "./skybox4/base.jpg", "./skybox4/front.jpg", "./skybox4/back.jpg"};
-    std::vector<std::string> faces = {"./skybox4/right.jpg", "./skybox4/left.jpg", "./skybox4/top.jpg", "./skybox4/base.jpg", "./skybox4/front.jpg", "./skybox4/back.jpg"};
+    std::vector<std::string> faces = {"./skybox6/right.jpg", "./skybox6/left.jpg", "./skybox6/top.jpg", "./skybox6/base.jpg", "./skybox6/front.jpg", "./skybox6/back.jpg"};
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
