@@ -24,6 +24,7 @@
 #include "MatrixTransform.h"
 #include "ParticleGenerator.h"
 #include "Ghost.h"
+#include "UI.h"
 
 class Window
 {

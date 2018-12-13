@@ -8,6 +8,7 @@ GLint skyboxShaderProgram;
 GLint lineShaderProgram;
 GLint particleShaderProgram;
 GLint ghostShaderProgram;
+GLint UIShaderProgram;
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "./shader.vert"
@@ -52,6 +53,7 @@ Bezier* bezier;
 MatrixTransform * root;
 ParticleGenerator* particles;
 Ghost* ghost;
+UI* ui;
 std::vector<Ghost*> ghostGroup;
 int Window::toon;
 
@@ -84,12 +86,13 @@ void Window::initialize_objects()
     skyboxShaderProgram = LoadShaders("./skyShader.vert", "./skyShader.frag");
     lineShaderProgram = LoadShaders("./lineShader.vert", "./lineShader.frag");
   ghostShaderProgram = LoadShaders("./ghostShader.vert", "./ghostShader.frag");
-  
+  UIShaderProgram = LoadShaders("./UIShader.vert", "./UIShader.frag");
+
   for(int i =0; i < 10; i++){
     ghostGroup.push_back(new Ghost(i * 10, i * 15, island));
   }
   
-
+  ui = new UI();
     if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
     {
         // Report Error
@@ -241,6 +244,8 @@ void Window::display_callback(GLFWwindow* window)
   glUseProgram(skyboxShaderProgram);
   skybox->draw(skyboxShaderProgram);
   root->draw(lineShaderProgram, glm::mat4(1.0f));
+  
+  ui->draw(UIShaderProgram);
   
   //ghost->draw(ghostShaderProgram, player -> getViewMatrix());
 
