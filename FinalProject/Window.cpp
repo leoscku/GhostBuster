@@ -43,6 +43,8 @@ FMOD_RESULT result;
 FMOD::System *m_pSystem;
 FMOD::Sound* Sound;
 FMOD::Sound* gunSound;
+FMOD::Sound* ghostSound;
+bool playGhost = false;
 
 Skybox* Window::skybox;
 Island* island;
@@ -105,8 +107,11 @@ void Window::initialize_objects()
     // Initialize our Instance with 36 Channels
     m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
 
-    m_pSystem->createSound("test.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
+    m_pSystem->createSound("background.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
     m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
+    m_pSystem->createSound("boo.wav",FMOD_INIT_NORMAL, 0, &ghostSound);
+  
+  gunSound->setMusicChannelVolume(36, 0.0);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
 }
@@ -202,7 +207,12 @@ void Window::idle_callback()
     g->update();
   }
   
-    particles -> update(0.03f, player -> getMuzzlePosition(), 0);
+  if (playGhost) {
+    m_pSystem->playSound( ghostSound ,NULL, false, 0);
+    playGhost = false;
+  }
+  
+  particles -> update(0.03f, player -> getMuzzlePosition(), 0);
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -308,10 +318,15 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
       if (actions == GLFW_PRESS){
         particles -> update(0.03f, player -> getMuzzlePosition(), 1000);
         m_pSystem->playSound( gunSound ,NULL, false, 0);
+        
         for (auto g :ghostGroup){
           if(g->getHit(player->getPosition(), player->getFront())){
             g->hp = g->hp -1;
-            std::cout<<"Remaining HP:" << g->hp << std::endl;
+            //std::cout<<"Remaining HP:" << g->hp << std::endl;
+            
+            if (g->hp == 0) {
+              playGhost = true;
+            }
           }
         }
       }

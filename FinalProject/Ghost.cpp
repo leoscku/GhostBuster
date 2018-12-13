@@ -247,6 +247,9 @@ void Ghost::changeDir(){
 }
 
 bool Ghost::getHit(glm::vec3 position, glm::vec3 dir){
+  if (hp <= 0) {
+    return false;
+  }
   glm::vec3 toGhost = (location - position);
   float thetaCosine = asin(50 / glm::length(toGhost));
   float theta2Cosine = acos(glm::dot(dir, glm::normalize(toGhost)));
