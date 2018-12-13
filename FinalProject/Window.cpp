@@ -191,7 +191,7 @@ void Window::idle_callback()
 	// cube->update();
     cam_pos = player -> getPosition();
     Window::V = player ->getViewMatrix();
-    //bezier->update();
+    // bezier->update();
     std::list<Node*> temp = root->getChildList();
   //ghost->update();
     for (auto key: temp){
@@ -272,11 +272,15 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		}
-
-        if (key == GLFW_KEY_9){
+		} else if (key == GLFW_KEY_9){
             island->reGenerateData();
-        }
+    } else if (key == GLFW_KEY_O) {
+      bezier->waveHeight = -0.01f;
+      bezier->update();
+    } else if (key == GLFW_KEY_P) {
+      bezier->waveHeight = 0.01f;
+      bezier->update();
+    }
 	}
 }
 

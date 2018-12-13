@@ -31,7 +31,7 @@ void main()
   vec3 viewDir = normalize(viewPos - fragPos);
   float specularStrength = 3;
   int specularEx = 16;
-  vec3 objectColor = vec3(0.0f, 1.0f, 0.0f);
+  vec3 objectColor = vec3(0.95f, 0.9f, 0.55f);
   
   vec3 norm = normalize(fragNormal);
   
@@ -50,7 +50,7 @@ void main()
   vec3 result = (specular * 0.0000001 + diffuse * 0.89999999 + 0.1) * objectColor;
   color = vec4(result, 1.0f);
   float edge = max(0, dot(viewDir, norm));
-  if (edge < 0.175) {
+  if (edge < 0.12) {
     color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
   }
 }

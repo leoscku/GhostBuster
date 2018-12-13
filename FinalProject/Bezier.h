@@ -24,7 +24,7 @@ class Bezier: public Node
 private:
     
     GLfloat length = 5.0f;
-    
+  
     bool dir_up = false; 
     
     std::vector<glm::vec3> points = {
@@ -85,6 +85,7 @@ public:
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
+    GLfloat waveHeight = 0.01f;
     
     void draw(int program, glm::mat4 M);
     

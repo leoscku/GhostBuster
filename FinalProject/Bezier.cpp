@@ -89,21 +89,25 @@ void Bezier::update()
     GLfloat speed = 0.002f;
     if (dir_up) {
         for (unsigned int i = 0; i < 4; i++) {
-            points[i*4+1].y += speed;
-            points[i*4+2].y -= speed;
+            // points[i*4+1].y += speed;
+            // points[i*4+2].y -= speed;
+          points[i*4+1].y += waveHeight;
+          points[i*4+2].y -= waveHeight;
         }
     } else {
         for (unsigned int i = 0; i < 4; i++) {
-            points[i*4+1].y -= speed;
-            points[i*4+2].y += speed;
+            // points[i*4+1].y -= speed;
+            // points[i*4+2].y += speed;
+          points[i*4+1].y += waveHeight;
+          points[i*4+2].y -= waveHeight;
         }
     }
     
-    if (points[1].y <= -0.05f) {
+    if (points[1].y <= -waveHeight) {
         dir_up = true;
     }
     
-    if (points[1].y >= 0.05f) {
+    if (points[1].y >= waveHeight) {
         dir_up = false;
     }
     calculateVerticesIndices();
@@ -216,7 +220,7 @@ void Bezier::calculateVerticesIndices() {
         }
     }
     
-    /*for (unsigned int i = 0; i < segmentNum; i++) {
+    for (unsigned int i = 0; i < segmentNum; i++) {
         float u = (float)i / (float)(segmentNum-1);
         glm::vec3 p00 = lines[0][i];
         glm::vec3 p01 = lines[1][i];
@@ -246,7 +250,7 @@ void Bezier::calculateVerticesIndices() {
             glm::vec3 n = glm::normalize(glm::cross(dx, dy));
             normals.push_back(n);
         }
-    }*/
+    }
     
     for (unsigned int i = 0; i < segmentNum-1; i++) {
         for (unsigned int j = 0; j < segmentNum-1; j++) {
