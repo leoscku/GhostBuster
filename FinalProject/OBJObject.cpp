@@ -161,6 +161,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 view)
   uModel = glGetUniformLocation(shaderProgram, "model");
   uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
   uTex = glGetUniformLocation(shaderProgram, "tex");
+  GLuint uToon = glGetUniformLocation(shaderProgram, "toon");
 
     
   // Now send these values to the shader program
@@ -169,6 +170,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 view)
   glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &toWorld[0][0]);
   glUniformMatrix3fv(uModel, 1, GL_FALSE, &model[0][0]);
   glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  glUniform1i(uToon, Window::toon); 
   
   // glUniform1i(uTex, textureID);
   glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture

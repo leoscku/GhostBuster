@@ -53,6 +53,7 @@ MatrixTransform * root;
 ParticleGenerator* particles;
 Ghost* ghost;
 std::vector<Ghost*> ghostGroup;
+int Window::toon;
 
 void Window::initialize_objects()
 {
@@ -114,6 +115,7 @@ void Window::initialize_objects()
   gunSound->setMusicChannelVolume(36, 0.0);
 
     m_pSystem->playSound( Sound,NULL, false, 0);
+  toon = 1; 
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -295,6 +297,8 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
     } else if (key == GLFW_KEY_P) {
       bezier->waveHeight = 0.01f;
       bezier->update();
+    } else if (key == GLFW_KEY_T) {
+      toon = !toon; 
     }
 	}
 }

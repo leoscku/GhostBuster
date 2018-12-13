@@ -9,18 +9,18 @@ in vec3 fragNormalFix;
 in vec3 fragPos;
 
 uniform sampler2D textureUnit;
-
+uniform int toon; 
 uniform vec3 viewPos;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
 out vec4 color;
 
 vec3 getIntensityScale(float intensity) {
-  if (intensity > 0.95)
+  if (intensity > 0.75)
     return vec3(1.0,1,1);
   else if (intensity > 0.5)
     return vec3(0.7,0.7,0.7);
-  else if (intensity > 0.05)
+  else if (intensity > 0.25)
     return vec3(0.35,0.35,0.35);
   else
     return vec3(0.1,0.1,0.1);
@@ -41,19 +41,27 @@ void main()
   float lightAtten = 1.0f;
   float diff = max(dot(norm, lightDir), 0.0f);
   // vec3 diffuse = getIntensityScale(diff * lightAtten) * lightColor;
-  vec3 diffuse = getIntensityScale(diff * lightAtten) * lightColor;
+  vec3 diffuse = diff * lightAtten * lightColor;
   
   // specular for directional light
   vec3 reflectDir = reflect(-lightDir, norm);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0f), specularEx);
   // vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
-  vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
+  vec3 specular = specularStrength * spec * lightAtten * lightColor;
   
-  vec3 result = (specular * 0.1 + diffuse * 0.8 + 0.1) * objectColor;
-  color = vec4(result, 1.0f);
-  float edge = max(0, dot(viewDir, norm));
-  if (edge < 0.5) {
-    color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  vec3 ambient = lightColor;
+  
+  vec3 result = vec3(1.0f);
+  if (toon == 0) {
+    result = (specular * 0.1 + diffuse * 0.8 + 0.1 * ambient) * objectColor;
+    color = vec4(result, 1.0f);
+  } else {
+    result = (getIntensityScale(specularStrength * spec * lightAtten) * lightColor * 0.1 + getIntensityScale(diff * lightAtten) * lightColor * 0.8 + 0.1 * lightColor) * objectColor;
+    color = vec4(result, 1.0f);
+    float edge = max(0, dot(viewDir, norm));
+    if (edge < 0.5) {
+      color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
   }
   
 }

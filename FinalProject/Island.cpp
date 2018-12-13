@@ -274,11 +274,13 @@ void Island::draw(GLuint shaderProgram, glm::mat4 view)
   uProjection = glGetUniformLocation(shaderProgram, "projection");
   uModelview = glGetUniformLocation(shaderProgram, "modelview");
   uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
+  GLuint uToon = glGetUniformLocation(shaderProgram, "toon");
   
   // Now send these values to the shader program
   glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
   glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
   glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
+  glUniform1i(uToon, Window::toon); 
   
   int texIdPos = glGetUniformLocation(shaderProgram, "tex");
   glActiveTexture(GL_TEXTURE0);

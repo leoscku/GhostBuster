@@ -151,6 +151,7 @@ void Ghost::draw(GLuint shaderProgram, glm::mat4 view){
   GLuint uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
   GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
   GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
+  GLuint uToon = glGetUniformLocation(shaderProgram, "toon");
   
   
   // Now send these values to the shader program
@@ -159,6 +160,7 @@ void Ghost::draw(GLuint shaderProgram, glm::mat4 view){
   glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &toWorld[0][0]);
   glUniform3f(uViewPos, Window::cam_pos.x, Window::cam_pos.y, Window::cam_pos.z);
   glUniformMatrix3fv(uModel, 1, GL_FALSE, &model[0][0]);
+  glUniform1i(uToon, Window::toon); 
 
   
   // Now draw the object. We simply need to bind the VAO associated with it.

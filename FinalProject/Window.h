@@ -50,6 +50,7 @@ public:
     
   static glm::vec3 cam_pos;
   static Skybox* skybox;
+  static int toon; 
 };
 
 #endif

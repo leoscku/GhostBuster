@@ -5,7 +5,9 @@
 // Note that you do not have access to the vertex shader's default output, gl_Position.
 in float sampleExtraOutput;
 uniform sampler2D tex; // this is the texture
-uniform vec3 viewPos; 
+uniform vec3 viewPos;
+uniform int toon;
+
 in vec2 fragTexCoord;
 in vec3 fragNormal;
 in vec3 fragPos;
@@ -39,18 +41,26 @@ void main()
   float lightAtten = 1.0f;
   float diff = max(dot(norm, lightDir), 0.0f);
   // vec3 diffuse = getIntensityScale(diff * lightAtten) * lightColor;
-  vec3 diffuse = getIntensityScale(diff * lightAtten) * lightColor;
+  vec3 diffuse = diff * lightAtten * lightColor;
   
   // specular for directional light
   vec3 reflectDir = reflect(-lightDir, norm);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0f), specularEx);
   // vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
-  vec3 specular = getIntensityScale(specularStrength * spec * lightAtten) * lightColor;
+  vec3 specular = specularStrength * spec * lightAtten * lightColor;
   
-  vec3 result = (specular * 0.0000001 + diffuse * 0.89999999 + 0.1) * objectColor;
-  color = vec4(result, 1.0f);
-  float edge = max(0, dot(viewDir, norm));
-  if (edge < 0.12) {
-    color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  vec3 ambient = lightColor;
+  
+  vec3 result = vec3(1.0f);
+  if (toon == 0) {
+    result = (specular * 0.05 + diffuse * 0.85 + 0.1 * ambient) * objectColor;
+    color = vec4(result, 1.0f);
+  } else {
+    result = (getIntensityScale(specularStrength * spec * lightAtten) * lightColor * 0.05 + getIntensityScale(diff * lightAtten) * lightColor * 0.85 + 0.1 * lightColor) * objectColor;
+    color = vec4(result, 1.0f);
+    float edge = max(0, dot(viewDir, norm));
+    if (edge < 0.12) {
+      color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
   }
 }
