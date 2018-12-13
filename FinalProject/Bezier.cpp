@@ -131,7 +131,7 @@ void Bezier::calculateVerticesIndices() {
     vertices.clear();
     indices.clear();
     
-    int segmentNum = 10;
+    int segmentNum = 20;
     std::vector<std::vector<glm::vec3>> lines; // all 4 rows
     lines.push_back(std::vector<glm::vec3>());
     lines.push_back(std::vector<glm::vec3>());

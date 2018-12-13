@@ -67,7 +67,7 @@ void Window::initialize_objects()
         int x = i % waterSize;
         int y = i / waterSize;
         MatrixTransform* temp = new MatrixTransform(glm::translate(glm::mat4(1.0f), glm::vec3((x- waterSize/2) * 2000, 0, (y -  waterSize/2) * 2000)) *
-                                                    glm::scale(glm::mat4(1.0f), glm::vec3(2000, 200, 2000)));
+                                                    glm::scale(glm::mat4(1.0f), glm::vec3(2000, 2000, 2000)));
         temp->addChild(bezier);
         root->addChild(temp);
     }
@@ -180,7 +180,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 10000.0f);
+		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 50000.0f);
 		V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 	}
 }
@@ -306,7 +306,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
       preVec = calTrackBallVec(x, y);
       lb_down = true;
       if (actions == GLFW_PRESS){
-        particles -> update(0.03f, player -> getMuzzlePosition(), 200);
+        particles -> update(0.03f, player -> getMuzzlePosition(), 1000);
         m_pSystem->playSound( gunSound ,NULL, false, 0);
         for (auto g :ghostGroup){
           if(g->getHit(player->getPosition(), player->getFront())){

@@ -74,7 +74,7 @@ void Ghost::loadModel(char* filepath){
 }
 
 void Ghost::init(){
-  loadModel("eyeball_s.obj");
+  loadModel("boo.obj");
   resizeObject();
   reorderData();
   
@@ -138,7 +138,11 @@ void Ghost::draw(GLuint shaderProgram, glm::mat4 view){
     return;
   }
   glUseProgram(shaderProgram);
-  glm::mat4 toWorld = glm::translate(glm::mat4(1.0f), location);
+  float theta = acos(glm::dot(glm::vec2(0, 1),dir));
+  if (glm::cross(glm::vec3(0, 0, 1), glm::vec3(dir.x,0, dir.y)).y < 0){
+    theta = 2 * 3.1415926f - theta;
+  }
+  glm::mat4 toWorld = glm::translate(glm::mat4(1.0f), location) * glm::rotate(glm::mat4(1.0f),  theta, glm::vec3(0,1,0));
   glm::mat4 modelview = view * toWorld;
   glm::mat3 model = glm::mat3(glm::transpose(glm::inverse(toWorld)));
   // We need to calculate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
