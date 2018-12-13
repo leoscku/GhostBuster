@@ -43,19 +43,27 @@ glm::mat4 Player::getViewMatrix()   {
 
 void Player::processKeyboard (Camera_Movement direction, float deltaTime) {
   float velocity = movementSpeed * deltaTime;
+  
+  glm::vec3 tempPos = glm::vec3(position);
+  
   if (direction == FORWARD) {
-    position += forwardDir * velocity;
+    tempPos += forwardDir * velocity;
   }
   if (direction == BACKWARD) {
-    position -= forwardDir * velocity;
+    tempPos -= forwardDir * velocity;
   }
   if (direction == LEFT) {
-    position -= rightDir * velocity;
+    tempPos -= rightDir * velocity;
   }
   if (direction == RIGHT) {
-    position += rightDir * velocity;
+    tempPos += rightDir * velocity;
   }
 
+  if(!island->inMap(glm::vec2(tempPos.x, tempPos.z))){
+    return;
+  }
+  
+  position = tempPos;
   float yValue = island -> getY(glm::vec2(position.x, position.z));
 
   yValue += 100.0;
@@ -136,4 +144,13 @@ glm::vec3 Player::getFront() {
 
 glm::vec3 Player::getRight() {
   return right;
+}
+
+void Player::updatePosition(){
+  float yValue = island -> getY(glm::vec2(position.x, position.z));
+  
+  yValue += 100.0;
+  
+  this -> position = glm::vec3(position.x, yValue, position.z);
+  gun -> lookAt(position, front, right, up);
 }

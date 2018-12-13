@@ -276,9 +276,11 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
         if (key == GLFW_KEY_9){
             island->reGenerateData(time(NULL));
+          player->updatePosition();
         }
         if (key == GLFW_KEY_0){
           island->reGenerateData(5);
+          player->updatePosition();
         }
 	}
 }

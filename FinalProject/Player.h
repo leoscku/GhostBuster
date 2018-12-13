@@ -101,6 +101,8 @@ public:
   
   glm::vec3 getRight();
   
+  void updatePosition();
+  
 private:
   // Calculates the front vector from the Camera's (updated) Euler Angles
   void updateCameraVectors();
