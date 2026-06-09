@@ -41,37 +41,39 @@ glm::mat4 Player::getViewMatrix()   {
   return glm::lookAt(position, position + front, up);
 }
 
-void Player::processKeyboard (Camera_Movement direction, float deltaTime) {
+void Player::processMovement(bool fwd, bool bwd, bool lft, bool rgt, float deltaTime) {
   float velocity = movementSpeed * deltaTime;
-  
-  glm::vec3 tempPos = glm::vec3(position);
-  
-  if (direction == FORWARD) {
-    tempPos += forwardDir * velocity;
-  }
-  if (direction == BACKWARD) {
-    tempPos -= forwardDir * velocity;
-  }
-  if (direction == LEFT) {
-    tempPos -= rightDir * velocity;
-  }
-  if (direction == RIGHT) {
-    tempPos += rightDir * velocity;
+
+  // Accumulate every pressed direction into one vector, then normalize it so
+  // that diagonal movement (e.g. W+D) isn't sqrt(2) faster than a single axis.
+  glm::vec3 dir = glm::vec3(0.0f);
+  if (fwd) { dir += forwardDir; }
+  if (bwd) { dir -= forwardDir; }
+  if (rgt) { dir += rightDir; }
+  if (lft) { dir -= rightDir; }
+  if (glm::length(dir) < 1e-6f) { return; }   // no input, or opposing keys cancel
+  dir = glm::normalize(dir);
+
+  glm::vec3 step = dir * velocity;
+  glm::vec3 tempPos = position + step;
+
+  // Resolve against the island bounds, sliding along an edge instead of
+  // hard-stopping when only one axis would leave the map.
+  if (!island->inMap(glm::vec2(tempPos.x, tempPos.z))) {
+    if (island->inMap(glm::vec2(position.x + step.x, position.z))) {
+      tempPos = glm::vec3(position.x + step.x, position.y, position.z);
+    } else if (island->inMap(glm::vec2(position.x, position.z + step.z))) {
+      tempPos = glm::vec3(position.x, position.y, position.z + step.z);
+    } else {
+      return;
+    }
   }
 
-  if(!island->inMap(glm::vec2(tempPos.x, tempPos.z))){
-    return;
-  }
-  
-  position = tempPos;
-  float yValue = island -> getY(glm::vec2(position.x, position.z));
+  // Snap the camera to the (now correctly interpolated) terrain height, once.
+  float yValue = island->getY(glm::vec2(tempPos.x, tempPos.z)) + 100.0f;
+  position = glm::vec3(tempPos.x, yValue, tempPos.z);
 
-  yValue += 100.0;
-
-  this -> position = glm::vec3(position.x, yValue, position.z);
-
-  gun -> lookAt(position, front, right, up);
-
+  gun->lookAt(position, front, right, up);
 }
 
 void Player::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -112,7 +114,9 @@ void Player::updateCameraVectors() {
   front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
   this -> front = glm::normalize(front);
-  forwardDir = glm::vec3(this -> front.x, 0.0f, this -> front.z);
+  // Normalize so horizontal walk speed doesn't shrink with cos(pitch) when
+  // looking up/down (matches the already-normalized rightDir below).
+  forwardDir = glm::normalize(glm::vec3(this -> front.x, 0.0f, this -> front.z));
 
   // Also re-calculate the Right and Up vector
   right = glm::normalize(glm::cross(this -> front, worldUp));

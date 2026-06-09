@@ -82,8 +82,9 @@ public:
   // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
   glm::mat4 getViewMatrix();
   
-  // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-  void processKeyboard(Camera_Movement direction, float deltaTime);
+  // Processes movement input. Takes the four directional key states, combines
+  // and normalizes them so speed is consistent across axes and look pitch.
+  void processMovement(bool fwd, bool bwd, bool lft, bool rgt, float deltaTime);
   
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
   void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);

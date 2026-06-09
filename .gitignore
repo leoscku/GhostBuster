@@ -1,3 +1,7 @@
 .DS_Store
 *.xcodeproj
 *.mp3
+
+# Native build artifacts
+ghostbuster
+*.o

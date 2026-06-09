@@ -388,12 +388,21 @@ float Island::getY(glm::vec2 coord){
     float z = coord.y;
     
     // perform linear interpolation
-    int xPos = int((x + mapSize / 2 * squareSize) / squareSize);
-    int zPos = int((z + mapSize / 2 * squareSize) / squareSize);
-    //std::cout << xPos << " " << zPos << std::endl;
+    float offset = (mapSize / 2) * squareSize;   // = 512 * 4.0 = 2048
+    int xPos = int((x + offset) / squareSize);
+    int zPos = int((z + offset) / squareSize);
 
-    float xCoef = fmod(x + mapSize / 2 * squareSize, squareSize);
-    float zCoef = fmod(z + mapSize / 2 * squareSize, squareSize);
+    // Clamp so xPos+1 / zPos+1 never index past the last grid row/column.
+    if (xPos < 0) { xPos = 0; }
+    if (xPos > mapSize - 2) { xPos = mapSize - 2; }
+    if (zPos < 0) { zPos = 0; }
+    if (zPos > mapSize - 2) { zPos = mapSize - 2; }
+
+    // Interpolation weights must be in [0,1]: normalize the in-cell remainder
+    // by squareSize. Without the /squareSize the height delta was multiplied by
+    // up to 4x and sawtooth-reset at every cell, jittering the camera height.
+    float xCoef = fmod(x + offset, squareSize) / squareSize;
+    float zCoef = fmod(z + offset, squareSize) / squareSize;
 
     float fp = (mapArray[xPos + 1][zPos] - mapArray[xPos][zPos]) * xCoef + mapArray[xPos][zPos];
     float sp = (mapArray[xPos + 1][zPos + 1] - mapArray[xPos][zPos + 1]) * xCoef + mapArray[xPos][zPos + 1];

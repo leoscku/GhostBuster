@@ -14,8 +14,7 @@
 #include "Cube.h"
 #include "shader.h"
 #include "OBJObject.h"
-#include "fmod.hpp"
-#include "fmod.h"
+#include "Audio.h"
 
 #include "Island.h"
 #include "Player.h"

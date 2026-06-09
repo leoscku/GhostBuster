@@ -39,12 +39,7 @@ glm::mat4 camRotMat = glm::mat4(1.0f);
 glm::vec3 preVec;
 bool lb_down = false;
 
-// Use FMOD to create background music
-FMOD_RESULT result;
-FMOD::System *m_pSystem;
-FMOD::Sound* Sound;
-FMOD::Sound* gunSound;
-FMOD::Sound* ghostSound;
+// Audio is handled by the miniaudio-backed Audio facade (see Audio.h).
 bool playGhost = false;
 
 Skybox* Window::skybox;
@@ -93,38 +88,20 @@ void Window::initialize_objects()
   }
   
   ui = new UI();
-    if (FMOD::System_Create(&m_pSystem) != FMOD_OK)
-    {
-        // Report Error
-        return;
-    }
 
-    int driverCount = 0;
-    m_pSystem->getNumDrivers(&driverCount);
-
-    if (driverCount == 0)
-    {
-        // Report Error
-        return;
-    }
-
-    // Initialize our Instance with 36 Channels
-    m_pSystem->init(36, FMOD_INIT_NORMAL, NULL);
-
-    m_pSystem->createSound("background.mp3",FMOD_LOOP_NORMAL, 0, &Sound);
-    m_pSystem->createSound("gun.mp3",FMOD_INIT_NORMAL, 0, &gunSound);
-    m_pSystem->createSound("boo.wav",FMOD_INIT_NORMAL, 0, &ghostSound);
-  
-  gunSound->setMusicChannelVolume(36, 0.0);
-
-    m_pSystem->playSound( Sound,NULL, false, 0);
-  toon = 1; 
+    // Initialize audio and start the looping background track.
+    // (background.mp3 / gun.mp3 are gitignored and absent; playOneShot/playLoop
+    //  no-op gracefully when a file is missing. boo.wav ships with the repo.)
+    Audio::init();
+    Audio::playLoop("background.wav");
+  toon = 1;
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
 	// delete(cube);
+	Audio::shutdown();
 	glDeleteProgram(shaderProgram);
 }
 
@@ -213,7 +190,7 @@ void Window::idle_callback()
   }
   
   if (playGhost) {
-    m_pSystem->playSound( ghostSound ,NULL, false, 0);
+    Audio::playOneShot("boo.wav");
     playGhost = false;
   }
   
@@ -222,8 +199,13 @@ void Window::idle_callback()
 
 void Window::display_callback(GLFWwindow* window)
 {
-  float currentFrame = glfwGetTime();
+  // Poll first so processInput() below reads this frame's key state, not last frame's.
+  glfwPollEvents();
+
+  float currentFrame = (float)glfwGetTime();
+  if (lastFrame == 0.0f) { lastFrame = currentFrame; } // avoid a huge first-frame dt
   deltaTime = currentFrame - lastFrame;
+  if (deltaTime > 0.1f) { deltaTime = 0.1f; }          // clamp load hitches so we don't teleport
   lastFrame = currentFrame;
 
   processInput(window);
@@ -252,9 +234,7 @@ void Window::display_callback(GLFWwindow* window)
   for(auto g: ghostGroup){
     g->draw(ghostShaderProgram, player -> getViewMatrix());
   }
-	// Gets events, including input such as keyboard and mouse or window resizing
-	glfwPollEvents();
-	// Swap buffers
+	// Swap buffers (events are now polled at the top of this function)
 	glfwSwapBuffers(window);
 }
 
@@ -262,21 +242,11 @@ void Window::processInput(GLFWwindow *window) {
 
   //std::cout << "keyboard" << std::endl;
 
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-    player -> processKeyboard(FORWARD, deltaTime);
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-    player -> processKeyboard(BACKWARD, deltaTime);
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-    player -> processKeyboard(LEFT, deltaTime);
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-    player -> processKeyboard(RIGHT, deltaTime);
-  }
+  bool fwd = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+  bool bwd = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+  bool lft = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+  bool rgt = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+  player -> processMovement(fwd, bwd, lft, rgt, deltaTime);
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -335,7 +305,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
       lb_down = true;
       if (actions == GLFW_PRESS){
         particles -> update(0.03f, player -> getMuzzlePosition(), 1000);
-        m_pSystem->playSound( gunSound ,NULL, false, 0);
+        Audio::playOneShot("gun.wav");
         
         for (auto g :ghostGroup){
           if(g->getHit(player->getPosition(), player->getFront())){
