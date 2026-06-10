@@ -194,7 +194,7 @@ void Window::idle_callback()
     playGhost = false;
   }
   
-  particles -> update(0.03f, player -> getMuzzlePosition(), 0);
+  particles -> update(deltaTime, player -> getMuzzlePosition(), 0);
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -217,9 +217,6 @@ void Window::display_callback(GLFWwindow* window)
 	glUseProgram(shaderProgram);
   player -> draw(shaderProgram);
 
-  glUseProgram(particleShaderProgram);
-  particles -> draw(particleShaderProgram, player -> getViewMatrix());
-
   glUseProgram(terrainShaderProgram);
   island->draw(terrainShaderProgram, player -> getViewMatrix());
 
@@ -234,6 +231,11 @@ void Window::display_callback(GLFWwindow* window)
   for(auto g: ghostGroup){
     g->draw(ghostShaderProgram, player -> getViewMatrix());
   }
+
+  // Muzzle-flash sparks last: additive, drawn over all opaque geometry.
+  glUseProgram(particleShaderProgram);
+  particles -> draw(particleShaderProgram, player -> getViewMatrix());
+
 	// Swap buffers (events are now polled at the top of this function)
 	glfwSwapBuffers(window);
 }
@@ -304,7 +306,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int actions, int mod
       preVec = calTrackBallVec(x, y);
       lb_down = true;
       if (actions == GLFW_PRESS){
-        particles -> update(0.03f, player -> getMuzzlePosition(), 1000);
+        particles -> update(0.0f, player -> getMuzzlePosition(), 100);
         Audio::playOneShot("gun.wav");
         
         for (auto g :ghostGroup){

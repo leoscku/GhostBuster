@@ -1,5 +1,8 @@
 #include "ParticleGenerator.h"
 
+// Muzzle-flash sparks are short-lived: a quick pop, not a lingering cloud.
+static const float LIFETIME = 0.12f;
+
 ParticleGenerator::ParticleGenerator(int amount, Player* p)
 : amount(amount), player(p)
 {
@@ -21,9 +24,11 @@ void ParticleGenerator::update(float dt, glm::vec3 position, int newParticles, g
     p.life -= dt; // reduce life
     if (p.life > 0.0f)
     {  // particle is alive, thus update
-      p.position -= p.velocity * dt;
-      p.color.g += dt;
-      p.color.a -= dt * 2.5;
+      float lifeFrac = p.life / LIFETIME;
+      p.position += p.velocity * dt;   // fly OUTWARD from the muzzle (was -=, drifted backward)
+      p.color.a = lifeFrac;            // fade out over life (now that additive blending is on)
+      p.color.g = 0.85f * lifeFrac;    // cool from hot white-yellow...
+      p.color.b = 0.45f * lifeFrac;    // ...through orange to red as it dies
     }
   }
 }
@@ -31,31 +36,41 @@ void ParticleGenerator::update(float dt, glm::vec3 position, int newParticles, g
 // Render all particles
 void ParticleGenerator::draw(GLuint shaderProgram, glm::mat4 view)
 {
+  // Additive blending makes overlapping sparks glow; keep depth TEST (so the
+  // flash is occluded by terrain/gun) but disable depth WRITE so the sparks
+  // blend with each other instead of fighting the depth buffer.
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glDepthMask(GL_FALSE);
 
-  for (Particle particle : this->particles)
+  // Uniform locations and the view matrix are constant across the batch — fetch
+  // them once instead of 4x per particle every frame.
+  glm::mat4 modelview = view;
+  GLint uProj   = glGetUniformLocation(shaderProgram, "projection");
+  GLint uMV     = glGetUniformLocation(shaderProgram, "modelview");
+  GLint uOffset = glGetUniformLocation(shaderProgram, "offset");
+  GLint uColor  = glGetUniformLocation(shaderProgram, "color");
+  GLint uScale  = glGetUniformLocation(shaderProgram, "pscale");
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, &Window::P[0][0]);
+  glUniformMatrix4fv(uMV, 1, GL_FALSE, &modelview[0][0]);
+
+  glBindVertexArray(VAO);
+  for (Particle &particle : this->particles)
   {
     if (particle.life > 0.0f)
     {
-      //std::cout << particle.position.x << ", " << particle.position.y << ", " << particle.position.z << std::endl;
-      
-      glm::mat4 modelview = view;
-      uProjection = glGetUniformLocation(shaderProgram, "projection");
-      uModelview = glGetUniformLocation(shaderProgram, "modelview");
-      
-      glUniform3f(glGetUniformLocation(shaderProgram, "offset"), particle.position.x, particle.position.y, particle.position.z);
-      
-      glUniform4f(glGetUniformLocation(shaderProgram, "color"), particle.color.r, particle.color.g, particle.color.b, particle.color.a);
-      
-      glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-      glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-      
-      glBindVertexArray(VAO);
+      float lifeFrac = particle.life / LIFETIME;
+      glUniform3f(uOffset, particle.position.x, particle.position.y, particle.position.z);
+      glUniform4f(uColor, particle.color.r, particle.color.g, particle.color.b, particle.color.a);
+      glUniform1f(uScale, 6.0f + 16.0f * lifeFrac);   // bigger when fresh, shrinks as it dies
       glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-      glBindVertexArray(0);
-
     }
   }
-  
+  glBindVertexArray(0);
+
+  // Restore default state for the opaque passes that follow.
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
 }
 
 void ParticleGenerator::init()
@@ -150,19 +165,21 @@ void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 position, 
   
   angle = acos(glm::dot(front, direction));
   
-  while (angle > glm::radians(90.0f)) {
+  // Keep directions inside a tight forward cone so sparks spray out the barrel.
+  while (angle > glm::radians(28.0f)) {
     randomX = ((rand() % max) - base) / 10.0f;
     randomY = ((rand() % max) - base) / 10.0f;
     randomZ = ((rand() % max) - base) / 10.0f;
-    
+
     direction = glm::normalize(glm::vec3(randomX, randomY, randomZ));
-    
+
     angle = acos(glm::dot(front, direction));
   }
-  
-  particle.position = position;
-  //particle.position = position + glm::vec3(randomX, randomY, randomZ) + offset;
-  particle.color = glm::vec4(1.0f, 0.3f, 0.0f, 1.0f);
-  particle.life = 1.0f;
-  particle.velocity = direction * 3.0f;
+
+  // Small jitter around the muzzle so the burst isn't a single point.
+  glm::vec3 jitter = glm::vec3(randomX, randomY, randomZ) * 0.06f;
+  particle.position = position + jitter + offset;
+  particle.color = glm::vec4(1.0f, 0.85f, 0.45f, 1.0f);  // hot white-yellow core
+  particle.life = LIFETIME;
+  particle.velocity = direction * 60.0f;                 // fly out fast, then die quick
 }
